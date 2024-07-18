@@ -1,0 +1,258 @@
+import React, { useState } from "react";
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
+import { useNavigation } from "expo-router";
+import { useDispatch } from "react-redux";
+import { updatedUserInfo } from "@/store/slice/UserInfoSlice";
+import { TextInput as PaperTextInput, DefaultTheme, Provider as PaperProvider } from "react-native-paper";
+
+const NumberInputScreen = () => {
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+
+  const handleNumberChange = (text) => {
+    const formatted = text.replace(/\D/g, ""); // Remove non-digit characters
+
+    // Format the phone number based on its length
+    let formattedPhoneNumber = "";
+    if (formatted.length > 0) {
+      formattedPhoneNumber += `(${formatted.slice(0, 2)}`;
+    }
+    if (formatted.length >= 3) {
+      formattedPhoneNumber += `) ${formatted.slice(2, 5)}`;
+    }
+    if (formatted.length >= 6) {
+      formattedPhoneNumber += `-${formatted.slice(5, 10)}`;
+    }
+
+    setPhoneNumber(formattedPhoneNumber); // Update state with formatted phone number
+    dispatch(updatedUserInfo({ number: formatted })); // Dispatch the number to Redux or your state management
+  };
+
+  const isPhoneNumberValid = phoneNumber.length === 13; // Adjust the length for the formatted number
+
+  const handleContinue = async () => {
+    Keyboard.dismiss();
+    if (!isPhoneNumberValid) {
+      setError("Please enter a valid phone number");
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+
+    setTimeout(() => {
+      setLoading(false);
+      navigation.navigate("OTPScreenNumber", { phoneNumber: `+971 ${phoneNumber}` });
+    }, 2000);
+  };
+
+  const customTheme = {
+    ...DefaultTheme,
+    fonts: {
+      ...DefaultTheme.fonts,
+      regular: { fontFamily: 'Poppins-Regular' },
+      medium: { fontFamily: 'Poppins-Medium' },
+    },
+    colors: {
+      ...DefaultTheme.colors,
+      primary: 'grey',
+      background: '#FFFFFF',
+      placeholder: 'grey',
+    },
+  };
+
+  return (
+    <PaperProvider theme={customTheme}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={styles.container}
+      >
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Enter Mobile Phone Number</Text>
+        </View>
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <View style={styles.inputArea}>
+            <View style={styles.inputWrapper}>
+              {(isFocused || phoneNumber.length > 0) && <Text style={styles.prefixText}>+971</Text>}
+              <PaperTextInput
+                label={<Text style={styles.label}>UAE Mobile Number</Text>}
+                placeholder={isFocused ? "(00) 000-0000" : "+971 (00) 000-0000"}
+                placeholderTextColor="grey"
+                style={[styles.textInput, isFocused && styles.textInputFocused]}
+                value={phoneNumber}
+                onChangeText={handleNumberChange}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                keyboardType="numeric"
+                mode="flat"
+                maxLength={13} // Adjust the max length for the formatted number
+                error={!!error}
+                contentStyle={styles.inputContent}
+                underlineColor="transparent"
+                theme={customTheme}
+                inputStyle={{ fontFamily: 'Poppins-Regular' }}
+              />
+            </View>
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            <Text style={styles.description}>
+              You consent to receive automated texts to the mobile phone number provided
+              for authentication and payment notifications from SPOT®. Text STOP to
+              opt out and HELP for help. Message and data rates may apply.
+            </Text>
+            <TouchableOpacity
+              style={[
+                styles.continueButton,
+                { backgroundColor: isPhoneNumberValid ? "#1E3B2F" : "#63927E" },
+              ]}
+              disabled={!isPhoneNumberValid || loading}
+              onPress={handleContinue}
+              activeOpacity={0.5}
+            >
+              <Text style={styles.continueText}>CONTINUE</Text>
+            </TouchableOpacity>
+
+            <View style={styles.footer}>
+              <Text
+                style={styles.footerText}
+                onPress={() => navigation.navigate("PrivacyScreen")}
+              >
+                Terms of Use
+              </Text>
+              <Text style={styles.footerText}> • </Text>
+              <Text
+                style={styles.footerText}
+                onPress={() => navigation.navigate("PrivacyScreen")}
+              >
+                Privacy Policy
+              </Text>
+            </View>
+          </View>
+        </ScrollView>
+
+        {loading && (
+          <Modal transparent={true} visible={true} animationType="fade">
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color="#ffffff" />
+            </View>
+          </Modal>
+        )}
+      </KeyboardAvoidingView>
+    </PaperProvider>
+  );
+};
+
+export default NumberInputScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+  header: {
+    backgroundColor: "#1E3B2F",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingBottom: 15,
+    height: 95,
+  },
+  headerText: {
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+    fontWeight: '650'
+  },
+  scrollViewContent: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+  inputArea: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingHorizontal: 15,
+    paddingBottom: 20,
+  },
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    marginVertical: 10,
+  },
+  prefixText: {
+    fontSize: 22,
+    color: 'black',
+    fontFamily: 'Poppins-Regular',
+    position: 'absolute',
+    left: 0,
+    bottom: 6,
+    zIndex: 1,
+  },
+  textInput: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    fontSize: 22,
+    borderBottomWidth: 1,
+    borderBottomColor: "#7C7A7F",
+    paddingHorizontal: 0
+  },
+  textInputFocused: {},
+  inputContent: {
+    fontFamily: 'Poppins-Regular',
+    marginLeft: 60
+  },
+  label: {
+    fontFamily: 'Poppins-Regular',
+    color: 'grey',
+    fontSize: 20,
+  },
+  continueButton: {
+    marginTop: 20,
+    padding: 15,
+    borderRadius: 5,
+    width: "100%",
+    alignItems: "center",
+  },
+  continueText: {
+    color: "#fff",
+    fontSize: 16,
+    fontFamily: 'Poppins-Regular',
+  },
+  description: {
+    fontSize: 10,
+    color: "#5F5E61",
+    paddingVertical: 8,
+    fontFamily: 'Poppins-Regular',
+    textAlign: "left",
+    paddingHorizontal: 0
+  },
+  errorText: {
+    color: "red",
+    alignSelf: "flex-start",
+    paddingLeft: 28,
+    fontFamily: 'Poppins-Regular',
+  },
+  footer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+  },
+  footerText: {
+    color: "#1E3B2F",
+    fontSize: 13,
+    fontWeight: "400",
+    fontFamily: 'Poppins-Regular',
+  },
+  loaderContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});

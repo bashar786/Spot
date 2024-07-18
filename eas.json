@@ -1,0 +1,15 @@
+{
+  "build": {
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "ios": {
+        "buildType": "app-store"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  }
+}
