@@ -15,27 +15,24 @@ import {
 import { useNavigation } from "expo-router";
 import { useDispatch } from "react-redux";
 import { updatedUserInfo } from "@/store/slice/UserInfoSlice";
-import {
-  TextInput as PaperTextInput,
-  DefaultTheme,
-  Provider as PaperProvider,
-} from "react-native-paper";
-import { Feather } from "@expo/vector-icons"; // Import Feather icons
+import { TextInput as PaperTextInput, DefaultTheme, Provider as PaperProvider } from "react-native-paper";
+import { AntDesign } from '@expo/vector-icons';
+import { Foundation } from "@expo/vector-icons";
+import { Icon } from "react-native-elements";
 
 const LoginScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState(""); // State for password
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [secureTextEntry, setSecureTextEntry] = useState(true); // State for password visibility
+  const [showPin, setShowPin] = useState(false);
 
   const handleNumberChange = (text) => {
     const formatted = text.replace(/\D/g, ""); // Remove non-digit characters
 
-    // Format the phone number based on its length
     let formattedPhoneNumber = "";
     if (formatted.length > 0) {
       formattedPhoneNumber += `(${formatted.slice(0, 2)}`;
@@ -47,11 +44,11 @@ const LoginScreen = () => {
       formattedPhoneNumber += `-${formatted.slice(5, 10)}`;
     }
 
-    setPhoneNumber(formattedPhoneNumber); // Update state with formatted phone number
-    dispatch(updatedUserInfo({ number: formatted })); // Dispatch the number to Redux or your state management
+    setPhoneNumber(formattedPhoneNumber); 
+    dispatch(updatedUserInfo({ number: formatted }));
   };
 
-  const isPhoneNumberValid = phoneNumber.length === 13; // Adjust the length for the formatted number
+  const isPhoneNumberValid = phoneNumber.length === 13;
 
   const handleContinue = async () => {
     Keyboard.dismiss();
@@ -72,7 +69,7 @@ const LoginScreen = () => {
   };
 
   const togglePasswordVisibility = () => {
-    setSecureTextEntry(!secureTextEntry);
+    setShowPin(!showPin);
   };
 
   const customTheme = {
@@ -100,78 +97,63 @@ const LoginScreen = () => {
           contentContainerStyle={styles.scrollViewContent}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.header}>
-            <Image
-              style={styles.logo}
-              source={require("../assets/images/spot.png")}
-            />
+          <Image style={styles.logo} source={require("../assets/images/spot.png")} />
+          
+          <View style={styles.textContainer}>
+            <Text style={styles.loginText}>Login</Text>
+            <Text style={styles.subText}>Log Into Your Account To Continue</Text>
           </View>
+
           <View style={styles.inputArea}>
             <View style={styles.inputWrapper}>
-              {isFocused && <Text style={styles.prefixText}>+971</Text>}
-              <PaperTextInput
-                label={<Text style={styles.label}>UAE Mobile Number</Text>}
-                placeholder={
-                  isFocused || phoneNumber.length > 0
-                    ? "(00) 000-0000"
-                    : "+971 (00) 000-0000"
-                }
+              <View style={styles.prefixDiv}>
+              <AntDesign name="mobile1" size={30} color="black" style={styles.prefixImg}  />
+                <Text style={styles.prefixText}>+971</Text>
+              </View>
+              <PaperTextInput 
+                placeholder="(00) 000-0000"
                 placeholderTextColor="grey"
-                style={[styles.textInput, isFocused && styles.textInputFocused]}
+                style={styles.textInput}
                 value={phoneNumber}
                 onChangeText={handleNumberChange}
                 onFocus={() => setIsFocused(true)}
-                onBlur={() => {
-                  if (phoneNumber.length === 0) {
-                    setIsFocused(false);
-                  }
-                }}
+                onBlur={() => setIsFocused(false)}
                 keyboardType="numeric"
                 mode="flat"
-                maxLength={13} // Adjust the max length for the formatted number
+                maxLength={13}
                 error={!!error}
-                contentStyle={styles.inputContent}
                 underlineColor="transparent"
                 theme={customTheme}
-                inputStyle={{ fontFamily: "Poppins-Regular" }}
               />
             </View>
+
             <View style={styles.inputWrapper}>
-              <PaperTextInput
-                label={<Text style={styles.label}>Enter your 6 digit pin</Text>}
-                placeholder="Enter your password"
-                placeholderTextColor="grey"
-                style={[styles.textInput, styles.textInputPassword]}
+              <View style={styles.prefixDiv}>
+                <Foundation name="key" size={30} color="#1E3B2F" style={styles.prefixImg} />
+              </View>
+              <PaperTextInput 
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry={secureTextEntry}
+                style={styles.textInputEmail}
                 keyboardType="numeric"
-                mode="flat"
-                maxLength={6} // Adjust as needed
-                error={!!error}
-                contentStyle={styles.PasswordInputContent}
-                underlineColor="transparent"
-                theme={customTheme}
-                inputStyle={{ fontFamily: "Poppins-Regular" }}
+                maxLength={6}
+                placeholder="PIN"
+                secureTextEntry={!showPin}
+                placeholderTextColor="grey"
               />
               <TouchableOpacity
-                style={styles.iconButton}
                 onPress={togglePasswordVisibility}
+                style={styles.iconContainer}
               >
-                <Feather
-                  name={secureTextEntry ? "eye-off" : "eye"}
-                  size={24}
-                  color="grey"
-                />
+                <Icon name={showPin ? "visibility" : "visibility-off"} size={24} color="#999" />
               </TouchableOpacity>
             </View>
+          <Text style={[styles.signup,{textAlign: 'right', textDecorationLine: 'underline'}]}>Forget Pin? </Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <TouchableOpacity
               style={[
                 styles.continueButton,
-                {
-                  backgroundColor: isPhoneNumberValid ? "#1E3B2F" : "#63927E",
-                },
+                { backgroundColor: isPhoneNumberValid ? "#1D533C" : "#63927E" },
               ]}
               disabled={!isPhoneNumberValid || loading}
               onPress={handleContinue}
@@ -180,21 +162,6 @@ const LoginScreen = () => {
               <Text style={styles.continueText}>LOGIN</Text>
             </TouchableOpacity>
             <Text style={styles.signup}>Don't have an Account <Text style={styles.signUp}>SIGN UP</Text></Text>
-            <View style={styles.footer}>
-              <Text
-                style={styles.footerText}
-                onPress={() => navigation.navigate("PrivacyScreen")}
-              >
-                Terms of Use
-              </Text>
-              <Text style={styles.footerText}> • </Text>
-              <Text
-                style={styles.footerText}
-                onPress={() => navigation.navigate("PrivacyScreen")}
-              >
-                Privacy Policy
-              </Text>
-            </View>
           </View>
         </ScrollView>
 
@@ -210,41 +177,37 @@ const LoginScreen = () => {
   );
 };
 
-export default LoginScreen;
-
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "#1E3B2F",
     flex: 1,
-    backgroundColor: "#FFFFFF",
   },
   logo: {
-    width: 300,
-    height: 170,
-    resizeMode: "contain",
-    marginBottom: -20
+    width: 420,
+    height: 330,
+    resizeMode: 'center',
+    marginBottom: 20,
   },
-  header: {
-    backgroundColor: "#1E3B2F",
-    justifyContent: "flex-end",
-    paddingBottom: 0,
-    alignItems: 'center'
+  textContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  loginText: {
+    color: '#FFF',
+    fontFamily: 'Poppins-Bold',
+    fontSize: 25,
+  },
+  subText: {
+    color: '#FFF',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 18,
   },
   scrollViewContent: {
     flexGrow: 1,
-    justifyContent: "space-between",
-  },
-  signup:{
-    fontFamily: 'Poppins-Regular',
-    marginTop: 20
-  },
-  signUp:{
-        fontSize: 16,
-        fontFamily: 'Poppins-Medium'
+    justifyContent: "flex-end",
   },
   inputArea: {
     width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
     paddingHorizontal: 15,
     paddingBottom: 20,
   },
@@ -252,87 +215,80 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
-    marginVertical: 5,
+    marginVertical: 10,
+    backgroundColor: '#F2F2F2',
+    borderRadius: 10,
+    paddingLeft: 40,
+  },
+  prefixDiv: {
+    position: 'absolute',
+    left: 10,
+    bottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  prefixImg: {
+    width: 35,
+    height: 30,
+    resizeMode: 'contain',
   },
   prefixText: {
-    fontSize: 22,
-    color: "black",
-    fontFamily: "Poppins-Regular",
-    position: "absolute",
-    left: 0,
-    bottom: 6,
-    zIndex: 1,
+    color: '#1E3B2F',
+    fontSize: 20,
+    fontWeight: '600',
   },
   textInput: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#F2F2F2',
     fontSize: 22,
-    borderBottomWidth: 1,
-    borderBottomColor: "#7C7A7F",
-    paddingHorizontal: 0,
+    paddingHorizontal: 15,
+    marginLeft: 50, // Adjust based on prefix size
   },
-  textInputFocused: {},
-  textInputPassword: {
+  textInputEmail: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#F2F2F2',
     fontSize: 22,
-    borderBottomWidth: 1,
-    borderBottomColor: "#7C7A7F",
-    paddingHorizontal: 0,
+    paddingHorizontal: 15,
+    marginLeft: 0, // Adjust based on prefix size
   },
-  inputContent: {
-    fontFamily: "Poppins-Regular",
-    marginLeft: 60,
-  },
-  PasswordInputContent: {
-    fontFamily: "Poppins-Regular",
-    marginLeft: 0,
-  },
-  label: {
-    fontFamily: "Poppins-Regular",
-    color: "grey",
-    fontSize: 20,
+  iconContainer: {
+    padding: 10,
   },
   continueButton: {
     marginTop: 20,
-    padding: 15,
-    borderRadius: 5,
+    paddingVertical: 15,
+    borderRadius: 10,
     width: "100%",
     alignItems: "center",
   },
   continueText: {
-    color: "#fff",
-    fontSize: 16,
-    fontFamily: "Poppins-Regular",
+    color: "#FFF",
+    fontFamily: "Poppins-Bold",
+    fontSize: 18,
   },
   errorText: {
-    color: "red",
-    alignSelf: "flex-start",
-    paddingLeft: 28,
-    fontFamily: "Poppins-Regular",
+    color: 'red',
+    fontSize: 14,
+    marginTop: 10,
   },
-  footer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 15,
+  signup: {
+    color: '#FFF',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
+    marginTop: 20,
+    textAlign: 'center'
   },
-  footerText: {
-    color: "#1E3B2F",
-    fontSize: 13,
-    fontFamily: "Poppins-Regular",
+  signUp: {
+    color: 'white',
+    fontFamily: 'Poppins-Bold',
+    fontSize: 18
   },
   loaderContainer: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
     justifyContent: "center",
     alignItems: "center",
-  },
-  iconButton: {
-    position: "absolute",
-    right: 0,
-    bottom: 6,
-    zIndex: 1,
-    padding: 10,
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
 });
+
+export default LoginScreen;

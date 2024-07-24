@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import MaterialIcons
+import { Foundation } from '@expo/vector-icons'; // Import Foundation icons
 
 const SetPinScreen = () => {
   const [pin, setPin] = useState("");
@@ -55,16 +56,19 @@ const SetPinScreen = () => {
       >
         <View style={styles.content}>
           <Text style={styles.title}>SET YOUR 6-DIGIT PIN</Text>
-          <View style={styles.inputContainer}>
+          <View style={styles.inputWrapper}>
+            <View style={styles.prefixDiv}>
+              <Foundation name="key" size={35} color="#1E3B2F" style={styles.prefixImg} />
+            </View>
             <TextInput
               value={pin}
               onChangeText={setPin}
-              style={[styles.input, { fontSize: 30, fontFamily: "Poppins-Thin" }]}
+              style={[styles.textInput, { fontSize: 22, fontFamily: "Poppins-Medium" }]}
               keyboardType="numeric"
               maxLength={6}
               placeholder="PIN"
               secureTextEntry={!showPin}
-              placeholderTextColor="#999"
+              placeholderTextColor="grey"
             />
             <TouchableOpacity
               onPress={() => setShowPin(!showPin)}
@@ -73,16 +77,20 @@ const SetPinScreen = () => {
               <Icon name={showPin ? "visibility" : "visibility-off"} size={24} color="#999" />
             </TouchableOpacity>
           </View>
-          <View style={styles.inputContainer}>
+          <View style={styles.inputWrapper}>
+            <View style={styles.prefixDiv}>
+              <Foundation name="key" size={35} color="#1E3B2F" style={styles.prefixImg} />
+            </View>
             <TextInput
               value={confirmPin}
               onChangeText={setConfirmPin}
-              style={[styles.input, { fontSize: 30, fontFamily: "Poppins-Thin" }]}
+              style={[styles.textInput, { fontSize: 22, fontFamily: "Poppins-Medium" }]}
               keyboardType="numeric"
               maxLength={6}
               placeholder="Confirm PIN"
               secureTextEntry={!showConfirmPin}
-              placeholderTextColor="#999"
+              placeholderTextColor="grey"
+              editable={pin.length === 6}
             />
             <TouchableOpacity
               onPress={() => setShowConfirmPin(!showConfirmPin)}
@@ -93,26 +101,18 @@ const SetPinScreen = () => {
           </View>
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => navigation.goBack()}
-            >
-              <Text style={styles.cancelButtonText}>CANCEL</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleContinue}
-              style={[
-                styles.continueButton,
-                pin && confirmPin && pin === confirmPin
-                  ? { backgroundColor: "#1E3B2F" }
-                  : { backgroundColor: "#63927E" },
-              ]}
-              activeOpacity={1}
-            >
-              <Text style={styles.continueButtonText}>CONTINUE</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            onPress={handleContinue}
+            style={[
+              styles.continueButton,
+              pin && confirmPin && pin === confirmPin
+                ? { backgroundColor: "#1E3B2F" }
+                : { backgroundColor: "#63927E" },
+            ]}
+          
+          >
+            <Text style={styles.continueButtonText}>CONTINUE</Text>
+          </TouchableOpacity>
           {loading && (
             <View style={styles.loaderOverlay}>
               <ActivityIndicator size="large" color="#ffffff" />
@@ -137,6 +137,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 15,
+    justifyContent: 'flex-end'
   },
   title: {
     fontSize: 22,
@@ -144,28 +145,39 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     fontFamily: "Poppins-Regular",
   },
-  inputContainer: {
+  inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 15,
     width: "100%",
-    borderBottomWidth: 1,
-    borderBottomColor: "grey",
+    marginVertical: 10,
+    backgroundColor: '#F2F2F2',
+    borderRadius: 10,
+    paddingLeft: 40, // Add padding to make space for the key icon
+    justifyContent: 'center'
   },
-  input: {
+  prefixDiv: {
+    fontSize: 22,
+    color: 'black',
+    fontFamily: 'Poppins-Regular',
+    position: 'absolute',
+    left: 10,
+    bottom: 6,
+    zIndex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  textInput: {
     flex: 1,
-    backgroundColor: "transparent",
-    textAlign: "center",
-    letterSpacing: 8,
+    backgroundColor: 'transparent',
+    fontSize: 20,
+    borderColor: 'transparent',
+    marginLeft: 20,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   iconContainer: {
-    padding: 5,
-  },
-  showHideText: {
-    color: "#1E3B2F",
-    fontSize: 10,
-    fontFamily: "Poppins-Regular",
-    marginBottom: 15,
+    padding: 10,
   },
   buttonContainer: {
     flexDirection: "row",
@@ -173,25 +185,12 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: 20,
   },
-  cancelButton: {
-    backgroundColor: "#ccc",
-    padding: 12,
-    alignItems: "center",
-    width: "50%",
-    borderTopLeftRadius: 5,
-    borderBottomLeftRadius: 5,
-  },
-  cancelButtonText: {
-    color: "#000",
-    fontSize: 16,
-    fontFamily: "Poppins-Regular",
-  },
   continueButton: {
-    padding: 12,
+    padding: 15,
+    borderRadius: 10,
+    width: "100%",
     alignItems: "center",
-    width: "50%",
-    borderTopRightRadius: 5,
-    borderBottomRightRadius: 5,
+    marginTop: 20,
   },
   continueButtonText: {
     fontSize: 16,

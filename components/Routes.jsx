@@ -18,7 +18,7 @@ import TransferMoney from '@/screens/TransferMoney';
 const Routes = () => {
   return (
     <AppLoading>
-    <Stack.Navigator initialRouteName="HomeScreen" screenOptions={{headerShown: false, }}>
+    <Stack.Navigator initialRouteName="LoginScreen" screenOptions={{headerShown: false, }}>
       <Stack.Screen name="HomeScreen" component={HomeScreen}  />
       <Stack.Screen name="NumberInputScreen" component={NumberInputScreen}  options={{ title: 'NumberInputScreen' }} />
       <Stack.Screen name='DebitcardScreen' component={DebitcardScreen} />

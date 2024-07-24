@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -10,42 +10,48 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Modal,
 } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 const OTPScreen = () => {
-  const [verificationCode, setVerificationCode] = useState("");
+  const dispatch = useDispatch();
+  const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const email = useSelector((state) => state.user.userInfo.email);
   const navigation = useNavigation();
   const route = useRoute();
   const { email: routeEmail } = route.params;
 
+  const inputRefs = useRef([]);
+
+  const handleCodeChange = (text, index) => {
+    const newCode = [...verificationCode];
+    newCode[index] = text;
+    setVerificationCode(newCode);
+
+    // Move to the next input if the text length is 1
+    if (text.length === 1 && index < 5) {
+      inputRefs.current[index + 1].focus();
+    }
+    // Move to the previous input if the text length is 0
+    if (text.length === 0 && index > 0) {
+      inputRefs.current[index - 1].focus();
+    }
+  };
+
   const handleEnter = async () => {
-    if (verificationCode.trim() === "") {
-      setError("Please enter the verification code.");
+    const code = verificationCode.join("");
+    if (code.length !== 6) {
+      setError("Please enter the 6-digit verification code.");
       return;
     }
-
     setError("");
     setLoading(true);
-    try {
-      const response = await fetch("http://192.168.1.21:3000/verifyOTP", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: routeEmail, otp: verificationCode }),
-      });
-      const data = await response.json();
 
-      if (response.ok) {
-        navigation.navigate("SetPinScreen");
-      } else {
-        setError(data.error || "Failed to verify OTP. Please try again.");
-    }
+    try {
+      navigation.navigate("S");
     } catch (error) {
       console.error("Error verifying OTP:", error);
       setError("Network error. Please check your connection and try again.");
@@ -64,19 +70,24 @@ const OTPScreen = () => {
         <View style={styles.content}>
           <Text style={styles.title}>ENTER YOUR VERIFICATION CODE</Text>
           <Text style={styles.subtitle}>
-            We sent a verification code to{" "}
-            <Text style={styles.email}> {routeEmail}</Text>
+            We sent a verification code to
           </Text>
-          <TextInput
-            value={verificationCode}
-            onChangeText={setVerificationCode}
-            style={[styles.input, { fontSize: 55 , fontFamily: 'Poppins-Thin'}]} // Adjust the fontSize here
-            keyboardType="numeric"
-            maxLength={6}
-            placeholderStyle={styles.placeholder}
-            
-          />
-
+          <Text style={styles.email}>{routeEmail}</Text>
+          <View style={styles.inputContainer}>
+            {verificationCode.map((digit, index) => (
+              <View key={index} style={styles.inputWrapper}>
+                <TextInput
+                  ref={(ref) => (inputRefs.current[index] = ref)}
+                  value={digit}
+                  onChangeText={(text) => handleCodeChange(text, index)}
+                  style={styles.input}
+                  keyboardType="numeric"
+                  maxLength={1}
+                  textAlign="center"
+                />
+              </View>
+            ))}
+          </View>
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
           <TouchableOpacity
             onPress={() => {
@@ -84,32 +95,30 @@ const OTPScreen = () => {
             }}
             style={styles.resendButton}
           >
+            <Text>Didn't receive the code? </Text>
             <Text style={styles.resendButtonText}>Resend the code</Text>
           </TouchableOpacity>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => navigation.goBack()}
-            >
-              <Text style={styles.cancelButtonText}>CANCEL</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
               onPress={handleEnter}
               style={[
-                styles.enterButton,
-                verificationCode
+                styles.verifyButton,
+                verificationCode.length === 6
                   ? { backgroundColor: "#1E3B2F" }
                   : { backgroundColor: "#63927E" },
               ]}
               activeOpacity={1}
+              disabled={verificationCode.length !== 6}
             >
-              <Text style={styles.enterButtonText}>ENTER</Text>
+              <Text style={styles.verifyButtonText}>Verify</Text>
             </TouchableOpacity>
           </View>
           {loading && (
-            <View style={styles.loaderOverlay}>
-              <ActivityIndicator size="large" color="#ffffff" />
-            </View>
+            <Modal transparent={true} visible={true} animationType="fade">
+              <View style={styles.loaderContainer}>
+                <ActivityIndicator size="large" color="#ffffff" />
+              </View>
+            </Modal>
           )}
         </View>
       </KeyboardAvoidingView>
@@ -133,62 +142,58 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 19,
-    color: "#000",
+    color: "#1E3B2F",
     marginBottom: 10,
     fontFamily: "Poppins-Regular",
   },
   subtitle: {
     fontSize: 16,
     color: "#666",
-    marginBottom: 20,
     textAlign: "center",
     fontFamily: "Poppins-Regular",
   },
-  input: {
-    width: "100%",
-    backgroundColor: "transparent",
-    borderBottomWidth: 1,
-    borderBottomColor: "grey",
-    textAlign: "center",
-    marginVertical: 15,
-    letterSpacing: 8,
-    alignSelf: 'center',
-  },
-  resendButton: {
-    marginBottom: 15,
-  },
-  resendButtonText: {
-    color: "#1E3B2F",
-    fontSize: 14,
-    fontFamily: "Poppins-Regular",
-  },
-  buttonContainer: {
+  inputContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    marginTop: 20,
+    marginVertical: 25,
   },
-  cancelButton: {
-    backgroundColor: "#ccc",
-    padding: 12,
+  inputWrapper: {
+    flexDirection: "row",
     alignItems: "center",
-    width: "50%",
-    borderTopLeftRadius: 5,
-    borderBottomLeftRadius: 5,
   },
-  cancelButtonText: {
-    color: "#000",
+  input: {
+    width: 40,
+    borderBottomWidth: 2,
+    borderBottomColor: '#1E3B2F',
+    fontSize: 40,
+    fontFamily: "Poppins-Medium",
+    marginHorizontal: 5,
+  },
+  resendButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 60,
+    marginVertical: 20,
+  },
+  resendButtonText: {
+    color: "#1E3B2F",
     fontSize: 16,
-    fontFamily: "Poppins-Regular",
+    fontFamily: "Poppins-Medium",
   },
-  enterButton: {
+  buttonContainer: {
+    position: "absolute",
+    bottom: 20,
+    width: "100%",
+    alignItems: "center",
+  },
+  verifyButton: {
     padding: 12,
     alignItems: "center",
-    width: "50%",
-    borderTopRightRadius: 5,
-    borderBottomRightRadius: 5,
+    width: "100%",
+    borderRadius: 10,
   },
-  enterButtonText: {
+  verifyButtonText: {
     fontSize: 16,
     fontFamily: "Poppins-Regular",
     color: "#fff",
@@ -202,9 +207,9 @@ const styles = StyleSheet.create({
     color: "red",
     fontFamily: "Poppins-Regular",
   },
-  loaderOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  loaderContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     justifyContent: "center",
     alignItems: "center",
   },

@@ -1,18 +1,18 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Modal, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Modal, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, Image } from "react-native";
 import { useNavigation } from "expo-router";
-import { useRoute } from "@react-navigation/native";
-import Header from "../components/Header";
 import { useDispatch } from "react-redux";
 import { updatedUserInfo } from "@/store/slice/UserInfoSlice";
 import { TextInput as PaperTextInput, DefaultTheme, Provider as PaperProvider } from "react-native-paper";
-import axios from "axios";
-
+import uaeflag from '../assets/images/uaeflag.png';
+import Header from "@/components/Header";
+import { Feather } from '@expo/vector-icons';
 const EmailScreen = () => {
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // State for loader
+  const [loading, setLoading] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const navigation = useNavigation();
 
   const validateEmail = (email) => {
@@ -30,23 +30,21 @@ const EmailScreen = () => {
     }
 
     setError("");
-    setLoading(true); // Show loader
+    setLoading(true);
 
-    // Dispatch email to backend for sending OTP
     try {
-      const response = await fetch("http://192.168.1.21:3000/sendEmail", {
+      const response = await fetch("http://192.168.1.11:3000/sendEmail", {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          email,
-        }),
+        body: JSON.stringify({ email }),
       });
+
       if (response.status === 200) {
         dispatch(updatedUserInfo({ email }));
-        navigation.navigate("OTPScreenEmail", { email }); // Pass email to OTPScreen
+        navigation.navigate("OTPScreenEmail", { email });
       } else {
         setError("Failed to send email. Please try again.");
       }
@@ -54,10 +52,9 @@ const EmailScreen = () => {
       console.error("Error sending email:", error);
       setError("Failed to send email. Please try again.");
     } finally {
-      setLoading(false); // Hide loader
+      setLoading(false);
     }
   };
-
   const customTheme = {
     ...DefaultTheme,
     fonts: {
@@ -65,12 +62,7 @@ const EmailScreen = () => {
       regular: { fontFamily: 'Poppins-Regular' },
       medium: { fontFamily: 'Poppins-Medium' },
     },
-    colors: {
-      ...DefaultTheme.colors,
-      primary: 'grey',
-      background: '#FFFFFF',
-      placeholder: 'grey',
-    },
+   
   };
 
   return (
@@ -79,59 +71,66 @@ const EmailScreen = () => {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
+       <Header title="Enter Email" />
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.container}>
-            <Header title="Enter Email" />
-            <View style={styles.inputArea}>
+         
+          <View style={styles.inputArea}>
+            <Text style={{ fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 20 }}>Email</Text>
+            <View style={styles.inputWrapper}>
+              <View style={styles.prefixDiv}>
+
+                <Feather name="mail" size={34} color="#1E3B2F" style={styles.prefixImg} />
+              </View>
               <PaperTextInput
-                keyboardType="email-address"
-                label={<Text style={styles.label}>Email</Text>}
                 placeholder="Enter your email"
                 placeholderTextColor="grey"
-                contentStyle={styles.inputContent}
-                style={styles.inputEmail}
+                style={styles.textInput}
                 value={email}
-                autoCapitalize="none"
                 onChangeText={(text) => {
                   setEmail(text);
                   setError("");
                 }}
+                autoCapitalize= 'none'
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                keyboardType="email-address"
+                 underlineColor="transparent"
+                underlineColorAndroid="transparent"
+                mode="flat"
                 error={!!error}
+                contentStyle={styles.inputContent}
+                inputStyle={{ fontFamily: 'Poppins-Regular'}
+                }
                 theme={customTheme}
               />
-              {error && <Text style={styles.errorText}>{error}</Text>}
-              <Text style={styles.description}>
-                By continuing you agree to receive an authorization code to the email provided
-              </Text>
-              <View style={{ width: "100%" }}>
-                <TouchableOpacity
-                  style={[
-                    styles.continueButton,
-                    {
-                      backgroundColor: email.trim() === "" || error ? "#63927E" : "#1E3B2F",
-                    },
-                  ]}
-                  onPress={handleContinue}
-                  disabled={loading}
-                  activeOpacity={0.5}
-                  delayPressIn={50}
-                >
-                  <Text style={styles.continueText}>CONTINUE</Text>
-                </TouchableOpacity>
-                {loading && (
-                  <Modal transparent={true} visible={true} animationType="fade">
-                    <View style={styles.loaderContainer}>
-                      <ActivityIndicator size="large" color="#ffffff" />
-                    </View>
-                  </Modal>
-                )}
-              </View>
             </View>
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            <Text style={styles.description}>
+              By continuing you agree to receive an authorization code to the email provided
+            </Text>
+            <TouchableOpacity
+              style={[
+                styles.continueButton,
+                { backgroundColor: email.trim() === "" || error ? "#63927E" : "#1E3B2F" },
+              ]}
+              disabled={loading}
+              onPress={handleContinue}
+              activeOpacity={0.5}
+            >
+              <Text style={styles.continueText}>CONTINUE</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
+        {loading && (
+          <Modal transparent={true} visible={true} animationType="fade">
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color="#ffffff" />
+            </View>
+          </Modal>
+        )}
       </KeyboardAvoidingView>
     </PaperProvider>
   );
@@ -142,39 +141,71 @@ export default EmailScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
   },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: 'flex-end',
   },
-  inputArea: {
-    flex: 1,
+  header: {
+    backgroundColor: "#1E3B2F",
     justifyContent: "flex-end",
-    alignItems: "flex-start",
-    paddingHorizontal: 20,
-    marginBottom: 50,
+    alignItems: "center",
+    paddingBottom: 15,
+    height: 95,
   },
-  inputEmail: {
+  headerText: {
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+    fontWeight: '650'
+  },
+  inputArea: {
+    width: "100%",
+    justifyContent: "flex-end",
+    paddingHorizontal: 15,
+    paddingBottom: 20,
+  },
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
     width: "100%",
     marginVertical: 10,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 0,
-    fontSize: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: "#7C7A7F",
-    lineHeight: 35,
+  },
+  prefixDiv: {
+    fontSize: 22,
+    color: 'black',
     fontFamily: 'Poppins-Regular',
-    textAlign: 'left',
+    position: 'absolute',
+    left: 10,
+    bottom: 0,
+    zIndex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  prefixImg: {
+    width: 50,
+    height: 45,
+    resizeMode: 'contain'
+  },
+  textInput: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    fontSize: 20,
+    paddingHorizontal: 0,
+    backgroundColor: '#F2F2F2',
+    border: "none"
   },
   inputContent: {
     fontFamily: 'Poppins-Regular',
-    fontSize: 20,
+    marginLeft: 55
   },
   continueButton: {
     marginTop: 20,
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 10,
     width: "100%",
     alignItems: "center",
   },
@@ -185,25 +216,16 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 10,
-    paddingHorizontal: 0,
     color: "#5F5E61",
     paddingVertical: 8,
     fontFamily: 'Poppins-Regular',
     textAlign: "left",
-    marginLeft: 0,
+    paddingHorizontal: 0
   },
   errorText: {
     color: "red",
+    alignSelf: "flex-start",
     fontFamily: 'Poppins-Regular',
-    marginVertical: 5,
-    textAlign: 'left',
-  },
-  label: {
-    fontFamily: 'Poppins-Regular',
-    color: 'grey',
-    fontSize: 20,
-    marginBottom: 5,
-    textAlign: 'left',
   },
   loaderContainer: {
     flex: 1,

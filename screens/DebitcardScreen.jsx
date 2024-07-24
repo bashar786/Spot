@@ -202,9 +202,10 @@ const DebitCardScreen = () => {
             Enter & verify your debit card information
           </Text>
           <View style={styles.inputContainer}>
+          <Text style={{ fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 16 }}>Debit Card Number</Text>
             <View style={styles.inputWrapper}>
               <TextInput
-                label={<Text style={styles.label}>Debit Card Number</Text>}
+             
                 value={maskedDebitCardNumber}
                 onChangeText={updateDebitCardNumber}
                 placeholder="0000 0000 0000 0000"
@@ -227,13 +228,14 @@ const DebitCardScreen = () => {
             </View>
           </View>
           <View style={styles.inputContainer}>
+          <Text style={{ fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 16 }}>First Name</Text>
             <TextInput
-              label={<Text style={styles.label}>First Name</Text>}
-              value={firstName}
+l              value={firstName}
               onChangeText={(text) => setFirstName(text)}
               mode="flat"
               style={styles.input}
               underlineColor="transparent"
+              placeholder="First Name"
               contentStyle={styles.inputContent}
               labelStyle={{ fontFamily: "Poppins-Regular" }}
               theme={{
@@ -252,13 +254,14 @@ const DebitCardScreen = () => {
             />
           </View>
           <View style={styles.inputContainer}>
+          <Text style={{ fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 16 }}>Last Name</Text>
             <TextInput
-              label={<Text style={styles.label}>Last Name</Text>}
               value={lastName}
               onChangeText={(text) => setLastName(text)}
               contentStyle={styles.inputContent}
               labelStyle={{ fontFamily: "Poppins-Regular" }}
               mode="flat"
+              placeholder="Last Name"
               style={styles.input}
               underlineColor="transparent"
               theme={{
@@ -278,9 +281,10 @@ const DebitCardScreen = () => {
           </View>
           <View style={styles.row}>
             <View style={[styles.inputContainer, styles.halfInput]}>
+            <Text style={{ fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 16 }}>Expiration Date</Text>
               <TextInput
-                label={<Text style={styles.label}>Expiration Date</Text>}
                 value={expiryDate}
+
                 onChangeText={handleExpiryDateChange}
                 placeholder="MM/YY"
                 placeholderTextColor="grey"
@@ -299,8 +303,9 @@ const DebitCardScreen = () => {
               />
             </View>
             <View style={[styles.inputContainer, styles.halfInput]}>
+            <Text style={{ fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 16 }}>Security Code/CVV</Text>
               <TextInput
-                label={<Text style={styles.label}>Security Code/CVV</Text>}
+                
                 value={cvv.length === 3 ? "•••" : cvv} // Mask after 3 digits
                 onChangeText={(text) => setCvv(text)}
                 placeholder="000"
@@ -320,6 +325,7 @@ const DebitCardScreen = () => {
               />
             </View>
           </View>
+          <View style={styles.buttonContainer}>
           <TouchableOpacity
             onPress={handleContinue}
             style={[styles.button, { backgroundColor: buttonColor }]}
@@ -333,6 +339,7 @@ const DebitCardScreen = () => {
           >
             <Text style={styles.buttonText}>Continue</Text>
           </TouchableOpacity>
+          </View>
         </SafeAreaView>
         <Modal visible={loading} transparent={true}>
           <View style={styles.loaderContainer}>
@@ -377,22 +384,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   input: {
-    flex: 1,
-    borderBottomColor: "grey",
-    borderBottomWidth: 1,
-    backgroundColor: "transparent",
-    paddingHorizontal: 0,
-    lineHeight: 35,
-    fontFamily: "Poppins-Regular",
-    fontSize: 14,
-    marginBottom: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    marginVertical: 10,
+    backgroundColor: '#F2F2F2',
+    borderRadius: 10,
+    paddingLeft: 0, 
   },
   label: {
     fontFamily: "Poppins-Regular",
   },
   inputContent: {
     fontFamily: "Poppins-Regular",
-    fontSize: 22,
+    fontSize: 20,
   },
   cardIcon: {
     width: 40,
@@ -428,6 +433,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.5)",
   },
+  buttonContainer:{
+    justifyContent: 'flex-start'
+  }
 });
 
 export default DebitCardScreen;

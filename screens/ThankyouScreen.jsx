@@ -1,15 +1,15 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // Changed to use the correct hook from @react-navigation/native
-
+import { FontAwesome } from '@expo/vector-icons';
 const ThankyouScreen = () => {
   const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
-      <Image style={styles.logo} source={require("../assets/images/spot.png")} />
+    <FontAwesome name="check-circle" size={200} color="white" style={styles.logo} />
       <View style={styles.buttonContainer}>
-        <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 16, color: '#fff', marginTop: -380, marginBottom: 120 }}>
+        <Text style={{ fontFamily: 'Poppins-Regular', fontSize: 16, color: '#fff', marginTop: -320, marginBottom: 120 }}>
           Your Account has been created
         </Text>
       </View>
@@ -36,7 +36,9 @@ const styles = StyleSheet.create({
     width: 420,
     height: 330,
     resizeMode: 'contain',
-    marginTop: -100,
+    marginTop: 50,
+    justifyContent: 'center',
+    marginLeft: 220
   },
   buttonContainer: {
     position: 'absolute',
@@ -47,13 +49,13 @@ const styles = StyleSheet.create({
   loginButton: {
     width: "95%",
     padding: 13,
-    backgroundColor: "#fff",
+    backgroundColor: "#1D533C",
     borderRadius: 12,
     alignItems: "center",
     marginBottom: 15,
   },
   login: {
-    color: "#1D533C",
+    color: "#FFF",
     fontSize: 20,
     textAlign: 'center',
     fontFamily: "Poppins-Medium",

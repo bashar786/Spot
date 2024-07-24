@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, Image} from "react-native";
 import { useNavigation } from "expo-router";
 import { useDispatch } from "react-redux";
 import { updatedUserInfo } from "@/store/slice/UserInfoSlice";
 import { TextInput as PaperTextInput, DefaultTheme, Provider as PaperProvider } from "react-native-paper";
-
+import uaeflag from '../assets/images/uaeflag.png'
 const NumberInputScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -76,13 +76,17 @@ const NumberInputScreen = () => {
         </View>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <View style={styles.inputArea}>
+          <Text style={{fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 20}}>UAE Mobile Number</Text>
             <View style={styles.inputWrapper}>
-              {(isFocused || phoneNumber.length > 0) && <Text style={styles.prefixText}>+971</Text>}
-              <PaperTextInput
-                label={<Text style={styles.label}>UAE Mobile Number</Text>}
-                placeholder={isFocused ? "(00) 000-0000" : "+971 (00) 000-0000"}
+            <View style={styles.prefixDiv}>
+            <Image source={uaeflag} style={styles.prefixImg} />
+            <Text style={{color: '#1E3B2F', fontSize: 20, fontWeight: '600'}}>+971</Text>
+            </View>
+         
+              <PaperTextInput 
+                placeholder="(00) 000-0000"
                 placeholderTextColor="grey"
-                style={[styles.textInput, isFocused && styles.textInputFocused]}
+                style={styles.textInput}
                 value={phoneNumber}
                 onChangeText={handleNumberChange}
                 onFocus={() => setIsFocused(true)}
@@ -95,7 +99,8 @@ const NumberInputScreen = () => {
                 underlineColor="transparent"
                 theme={customTheme}
                 inputStyle={{ fontFamily: 'Poppins-Regular' }}
-              />
+            />
+             
             </View>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <Text style={styles.description}>
@@ -173,7 +178,6 @@ const styles = StyleSheet.create({
   },
   inputArea: {
     width: "100%",
-    alignItems: "center",
     justifyContent: "flex-end",
     paddingHorizontal: 15,
     paddingBottom: 20,
@@ -184,37 +188,39 @@ const styles = StyleSheet.create({
     width: "100%",
     marginVertical: 10,
   },
-  prefixText: {
+  prefixDiv: {
     fontSize: 22,
     color: 'black',
     fontFamily: 'Poppins-Regular',
     position: 'absolute',
-    left: 0,
+    left:10,
     bottom: 6,
     zIndex: 1,
+    flexDirection: 'row',
+    justifyContent:'center',
+    alignItems: 'center'
+  },
+  prefixImg:{
+    width: 50,
+    height:45,
+    resizeMode: 'contain'
   },
   textInput: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     fontSize: 22,
-    borderBottomWidth: 1,
-    borderBottomColor: "#7C7A7F",
-    paddingHorizontal: 0
+    paddingHorizontal: 0,
+    backgroundColor: '#F2F2F2'
   },
   textInputFocused: {},
   inputContent: {
     fontFamily: 'Poppins-Regular',
-    marginLeft: 60
-  },
-  label: {
-    fontFamily: 'Poppins-Regular',
-    color: 'grey',
-    fontSize: 20,
+    marginLeft: 110
   },
   continueButton: {
     marginTop: 20,
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 10,
     width: "100%",
     alignItems: "center",
   },
@@ -255,4 +261,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+inputField:{
+    marginBottom: 15,
+    width: "100%",
+    paddingHorizontal: 15,
+    backgroundColor: '#FFFFFF',
+    fontSize: 18,
+    borderBottomWidth: 1,
+    borderBottomColor: "#7C7A7F",
+    color: 'black',
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center'
+  }
 });

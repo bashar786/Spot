@@ -61,31 +61,30 @@ const AddressScreen = () => {
             Enter your billing address information
           </Text>
           <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Address</Text>
             <TextInput
-              label={<Text style={styles.label}>Address</Text>}
               value={address}
               onChangeText={(text) => setAddress(text)}
               placeholder="Street address. No PO boxes."
+              placeholderTextColor="grey"
               mode="flat"
-              placeholderTextColor='grey'
               style={styles.input}
               underlineColor="transparent"
               contentStyle={styles.inputContent}
               theme={{
                 colors: {
                   primary: "grey",
-                },
-                fonts: {
-                  regular: { fontFamily: "Poppins-Regular" },
                 },
               }}
             />
           </View>
           <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Apt / Ste</Text>
             <TextInput
-              label={<Text style={styles.label}>Apt / Ste</Text>}
               value={apt}
               onChangeText={(text) => setApt(text)}
+              placeholder="Apt / Ste"
+              placeholderTextColor="grey"
               mode="flat"
               style={styles.input}
               underlineColor="transparent"
@@ -94,19 +93,17 @@ const AddressScreen = () => {
                 colors: {
                   primary: "grey",
                 },
-                fonts: {
-                  regular: { fontFamily: "Poppins-Regular" },
-                },
               }}
             />
           </View>
-         
           <View style={styles.row}>
             <View style={[styles.inputContainer, styles.halfInput]}>
+              <Text style={styles.inputLabel}>City</Text>
               <TextInput
-                label={<Text style={styles.label}>City</Text>}
                 value={city}
                 onChangeText={(text) => setCity(text)}
+                placeholder="City"
+                placeholderTextColor="grey"
                 mode="flat"
                 style={styles.input}
                 underlineColor="transparent"
@@ -115,40 +112,36 @@ const AddressScreen = () => {
                   colors: {
                     primary: "grey",
                   },
-                  fonts: {
-                    regular: { fontFamily: "Poppins-Regular" },
-                  },
                 }}
               />
             </View>
             <View style={[styles.inputContainer, styles.halfInput]}>
-            <TextInput
-              label={<Text style={styles.label}>Zip</Text>}
-              value={zipCode}
-              onChangeText={(text) => setZipCode(text)}
-              mode="flat"
-              style={styles.input}
-              underlineColor="transparent"
-              keyboardType="numeric"
-              maxLength={6}
-              contentStyle={styles.inputContent}
-              theme={{
-                colors: {
-                  primary: "grey",
-                },
-                fonts: {
-                  regular: { fontFamily: "Poppins-Regular" },
-                },
-              }}
-            />
-          </View>
+              <Text style={styles.inputLabel}>Zip</Text>
+              <TextInput
+                value={zipCode}
+                onChangeText={(text) => setZipCode(text)}
+                placeholder="00000"
+                placeholderTextColor="grey"
+                mode="flat"
+                style={styles.input}
+                underlineColor="transparent"
+                keyboardType="numeric"
+                maxLength={6}
+                contentStyle={styles.inputContent}
+                theme={{
+                  colors: {
+                    primary: "grey",
+                  },
+                }}
+              />
+            </View>
           </View>
           <TouchableOpacity
             onPress={handleContinue}
             style={[styles.continueButton, { backgroundColor: buttonColor }]}
             activeOpacity={0.5}
           >
-            <Text style={styles.continueText}>CONTINUE</Text>
+            <Text style={styles.continueText}>Continue</Text>
           </TouchableOpacity>
           {loading && (
             <Modal transparent={true} visible={true} animationType="fade">
@@ -167,8 +160,7 @@ const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: "#6a1b9a",
-    accent: "#6a1b9a",
+    primary: "grey",
   },
 };
 
@@ -183,41 +175,35 @@ const styles = StyleSheet.create({
   verifyText: {
     fontSize: 14,
     fontFamily: "Poppins-Regular",
-    marginBottom: 0,
+    marginBottom: 10,
     textAlign: "center",
   },
   inputContainer: {
-    paddingBottom: -30,
+    paddingBottom: 20,
     paddingHorizontal: 15,
   },
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
+  inputLabel: {
+    fontFamily: 'Poppins-Medium',
+    color: '#1E3B2F',
+    fontSize: 16,
+    marginBottom: 5,
   },
   input: {
-    flex: 1,
-    borderBottomColor: "grey",
-    borderBottomWidth: 1,
-    backgroundColor: "transparent",
-    paddingHorizontal: 0,
-    lineHeight: 35,
-    fontFamily: "Poppins-Regular",
-    fontSize: 16,
-    marginBottom: 10
-  },
-  label: {
-    fontFamily: "Poppins-Regular",
+    backgroundColor: '#F2F2F2',
+    borderRadius: 10,
+    marginVertical: 10,
+    paddingLeft: 0,
   },
   inputContent: {
     fontFamily: "Poppins-Regular",
-    fontSize: 22,
+    fontSize: 20,
   },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
   halfInput: {
-    width: "50%",
+    flex: 0.5,
   },
   continueButton: {
     paddingVertical: 15,
