@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   Text,
   TouchableOpacity,
   StatusBar,
@@ -14,6 +13,7 @@ import {
 } from "react-native";
 import { useDispatch } from "react-redux";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import Header from "@/components/Header";
 
 const OTPScreen = () => {
   const dispatch = useDispatch();
@@ -51,7 +51,21 @@ const OTPScreen = () => {
     setLoading(true);
 
     try {
-      navigation.navigate("S");
+      const response = await fetch("http://192.168.1.4:3000/verifyOtp", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: routeEmail, otp: code }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // OTP is verified successfully
+        navigation.navigate("SetPinScreen"); // Replace with your next screen
+      }
     } catch (error) {
       console.error("Error verifying OTP:", error);
       setError("Network error. Please check your connection and try again.");
@@ -61,16 +75,18 @@ const OTPScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+    <Header title='Verify Email' />
       <StatusBar barStyle="dark-content" />
-      <KeyboardAvoidingView
+    
+        <View style={styles.content}>
+        <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingContainer}
       >
-        <View style={styles.content}>
-          <Text style={styles.title}>ENTER YOUR VERIFICATION CODE</Text>
+          <Text style={styles.title}>OTP Verification</Text>
           <Text style={styles.subtitle}>
-            We sent a verification code to
+          Enter the verification code sent to
           </Text>
           <Text style={styles.email}>{routeEmail}</Text>
           <View style={styles.inputContainer}>
@@ -84,28 +100,33 @@ const OTPScreen = () => {
                   keyboardType="numeric"
                   maxLength={1}
                   textAlign="center"
+                  returnKeyType="done"
+                  selectionColor="#1D533C" 
                 />
               </View>
             ))}
           </View>
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          <TouchableOpacity
-            onPress={() => {
-              /* Handle resend code */
-            }}
-            style={styles.resendButton}
-          >
-            <Text>Didn't receive the code? </Text>
-            <Text style={styles.resendButtonText}>Resend the code</Text>
-          </TouchableOpacity>
+          <View style={styles.resendButtonContainer}>
+            <Text style={styles.resendText}>Didn't receive code?</Text>
+            <TouchableOpacity
+              onPress={() => {
+                /* Handle resend code */
+              }}
+              style={styles.resendButton}
+            >
+              <Text style={styles.resendButtonText}>Resend Now</Text>
+            </TouchableOpacity>
+          </View>
+          </KeyboardAvoidingView>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               onPress={handleEnter}
               style={[
                 styles.verifyButton,
-                verificationCode.length === 6
-                  ? { backgroundColor: "#1E3B2F" }
-                  : { backgroundColor: "#63927E" },
+                verificationCode.some((digit) => digit === "")
+                  ? { backgroundColor: "#66B18A" }
+                  : { backgroundColor: "#1C533C" },
               ]}
               activeOpacity={1}
               disabled={verificationCode.length !== 6}
@@ -121,36 +142,36 @@ const OTPScreen = () => {
             </Modal>
           )}
         </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
   keyboardAvoidingContainer: {
     flex: 1,
+    alignItems: 'center'
   },
   content: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
     padding: 15,
+    marginTop: 20,
   },
   title: {
-    fontSize: 19,
-    color: "#1E3B2F",
+    fontSize: 30,
+    color: "#1D533C",
     marginBottom: 10,
-    fontFamily: "Poppins-Regular",
+    fontFamily: 'Urbanist-Bold',
   },
   subtitle: {
-    fontSize: 16,
-    color: "#666",
+    fontSize: 19,
+    color: "#535764",
     textAlign: "center",
-    fontFamily: "Poppins-Regular",
+    fontFamily: "Poppins-SemiBold",
   },
   inputContainer: {
     flexDirection: "row",
@@ -163,45 +184,52 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   input: {
-    width: 40,
+    width: 50,
     borderBottomWidth: 2,
-    borderBottomColor: '#1E3B2F',
+    borderBottomColor: '#1D533C',
     fontSize: 40,
     fontFamily: "Poppins-Medium",
     marginHorizontal: 5,
+    color: '#444'
   },
-  resendButton: {
+  resendButtonContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 60,
+    justifyContent: 'space-between',
+    width: '98%',
     marginVertical: 20,
+    alignItems: 'center'
+  },
+  resendText: {
+    color: '#615F5F',
+    fontFamily: 'Poppins-Medium',
+    fontSize: 17,
   },
   resendButtonText: {
-    color: "#1E3B2F",
-    fontSize: 16,
-    fontFamily: "Poppins-Medium",
+    color: "#1D533C",
+    fontSize: 17,
+    fontFamily: "Urbanist-Bold",
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 20,
+    bottom: 40,
     width: "100%",
     alignItems: "center",
   },
   verifyButton: {
-    padding: 12,
+    padding: 17,
     alignItems: "center",
     width: "100%",
     borderRadius: 10,
   },
   verifyButtonText: {
-    fontSize: 16,
-    fontFamily: "Poppins-Regular",
+    fontSize: 17,
+    fontFamily: "Poppins-Medium",
     color: "#fff",
   },
   email: {
-    color: "#1E3B2F",
-    fontSize: 16,
-    fontFamily: "Poppins-Regular",
+    color: "#1C533C",
+    fontSize: 20,
+    fontFamily: "Poppins-SemiBold",
   },
   errorText: {
     color: "red",

@@ -1,10 +1,14 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, Image} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, Image, TextInput} from "react-native";
 import { useNavigation } from "expo-router";
 import { useDispatch } from "react-redux";
 import { updatedUserInfo } from "@/store/slice/UserInfoSlice";
 import { TextInput as PaperTextInput, DefaultTheme, Provider as PaperProvider } from "react-native-paper";
 import uaeflag from '../assets/images/uaeflag.png'
+import Header from "@/components/Header";
+import { KeyboardAccessoryNavigation } from 'react-native-keyboard-accessory';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+
 const NumberInputScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -47,7 +51,7 @@ const NumberInputScreen = () => {
     setTimeout(() => {
       setLoading(false);
       navigation.navigate("OTPScreenNumber", { phoneNumber: `+971 ${phoneNumber}` });
-    }, 2000);
+    }, 10);
   };
 
   const customTheme = {
@@ -72,18 +76,18 @@ const NumberInputScreen = () => {
         style={styles.container}
       >
         <View style={styles.header}>
-          <Text style={styles.headerText}>Enter Mobile Phone Number</Text>
+         <Header title='Enter Mobile Number' />
         </View>
         <ScrollView contentContainerStyle={styles.scrollViewContent}>
           <View style={styles.inputArea}>
-          <Text style={{fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 20}}>UAE Mobile Number</Text>
+          <Text style={{fontFamily: 'Poppins-Medium', color: '#1D533C', fontSize: 20}}>UAE Mobile Number</Text>
             <View style={styles.inputWrapper}>
             <View style={styles.prefixDiv}>
             <Image source={uaeflag} style={styles.prefixImg} />
-            <Text style={{color: '#1E3B2F', fontSize: 20, fontWeight: '600'}}>+971</Text>
+            <Text style={{color: '#1D533C', fontSize: 19, fontWeight: '600'}}>+971</Text>
             </View>
          
-              <PaperTextInput 
+              <TextInput 
                 placeholder="(00) 000-0000"
                 placeholderTextColor="grey"
                 style={styles.textInput}
@@ -92,13 +96,12 @@ const NumberInputScreen = () => {
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 keyboardType="numeric"
-                mode="flat"
                 maxLength={13} // Adjust the max length for the formatted number
                 error={!!error}
                 contentStyle={styles.inputContent}
-                underlineColor="transparent"
-                theme={customTheme}
-                inputStyle={{ fontFamily: 'Poppins-Regular' }}
+                inputStyle={styles.inputContent}
+                selectionColor="#1D533C" 
+                 returnKeyType="done"
             />
              
             </View>
@@ -110,14 +113,14 @@ const NumberInputScreen = () => {
             </Text>
             <TouchableOpacity
               style={[
-                styles.continueButton,
-                { backgroundColor: isPhoneNumberValid ? "#1E3B2F" : "#63927E" },
+                styles.ContinueButton,
+                { backgroundColor: isPhoneNumberValid ? "#1E3B2F" : "#66B18A" },
               ]}
               disabled={!isPhoneNumberValid || loading}
               onPress={handleContinue}
               activeOpacity={0.5}
             >
-              <Text style={styles.continueText}>CONTINUE</Text>
+              <Text style={styles.ContinueText}>Continue</Text>
             </TouchableOpacity>
 
             <View style={styles.footer}>
@@ -127,7 +130,7 @@ const NumberInputScreen = () => {
               >
                 Terms of Use
               </Text>
-              <Text style={styles.footerText}> • </Text>
+              <Text style={styles.footerText}> & </Text>
               <Text
                 style={styles.footerText}
                 onPress={() => navigation.navigate("PrivacyScreen")}
@@ -157,20 +160,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
-  header: {
-    backgroundColor: "#1E3B2F",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    paddingBottom: 15,
-    height: 95,
-  },
-  headerText: {
-    color: '#fff',
-    fontSize: 18,
-    textAlign: 'center',
-    fontFamily: 'Poppins-Regular',
-    fontWeight: '650'
-  },
   scrollViewContent: {
     flex: 1,
     alignItems: "center",
@@ -180,7 +169,7 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "flex-end",
     paddingHorizontal: 15,
-    paddingBottom: 20,
+    paddingBottom: 40,
   },
   inputWrapper: {
     flexDirection: "row",
@@ -195,10 +184,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left:10,
     bottom: 6,
-    zIndex: 1,
+    zIndex: 2,
     flexDirection: 'row',
     justifyContent:'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: '#F2F2F2',
   },
   prefixImg:{
     width: 50,
@@ -207,35 +197,38 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    fontSize: 22,
+    fontSize: 19,
     paddingHorizontal: 0,
-    backgroundColor: '#F2F2F2'
+    backgroundColor: '#F2F2F2',
+    padding: 17,
+ paddingLeft: 110
   },
   textInputFocused: {},
   inputContent: {
-    fontFamily: 'Poppins-Regular',
-    marginLeft: 110
+    fontFamily: 'Poppins-Medium',
+    marginLeft: 110,
+    color: '#444444',
   },
-  continueButton: {
+  ContinueButton: {
     marginTop: 20,
-    padding: 15,
+    padding: 17,
     borderRadius: 10,
     width: "100%",
     alignItems: "center",
+    marginBottom: -3
   },
-  continueText: {
+  ContinueText: {
     color: "#fff",
     fontSize: 16,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Poppins-Medium',
   },
   description: {
-    fontSize: 10,
-    color: "#5F5E61",
+    fontSize: 12,
+    color: "#53575F",
     paddingVertical: 8,
     fontFamily: 'Poppins-Regular',
-    textAlign: "left",
-    paddingHorizontal: 0
+    textAlign: "justify",
+    paddingHorizontal: 0,
   },
   errorText: {
     color: "red",
@@ -250,10 +243,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   footerText: {
-    color: "#1E3B2F",
+    color: "#1D533C",
     fontSize: 13,
-    fontWeight: "400",
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Poppins-Medium',
   },
   loaderContainer: {
     flex: 1,
@@ -266,11 +258,11 @@ inputField:{
     width: "100%",
     paddingHorizontal: 15,
     backgroundColor: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 19,
     borderBottomWidth: 1,
     borderBottomColor: "#7C7A7F",
     color: 'black',
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Poppins-Medium',
     textAlign: 'center'
   }
 });

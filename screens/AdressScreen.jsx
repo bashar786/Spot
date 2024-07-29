@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   Text,
   TouchableOpacity,
   StatusBar,
@@ -26,21 +25,21 @@ const AddressScreen = () => {
   const [zipCode, setZipCode] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
-  const [buttonColor, setButtonColor] = useState("#A99ABB");
+  const [buttonColor, setButtonColor] = useState("#66B18A");
   const [loading, setLoading] = useState(false); // State for loader
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (address && apt && zipCode && city) {
-      setButtonColor("#1E3B2F");
+      setButtonColor("#1D533C");
     } else {
-      setButtonColor("#63927E");
+      setButtonColor("#66B18A");
     }
   }, [address, apt, zipCode, city, state]);
 
   const handleContinue = () => {
-    if (address && apt && zipCode && city ) {
+    if (address && apt && zipCode && city) {
       setLoading(true); // Show loader
       dispatch(UpdatedDebitCardAddress({ address, apt, zipCode, city, state }));
       // Replace with your navigation logic
@@ -54,7 +53,7 @@ const AddressScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <PaperProvider theme={theme}>
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
           <StatusBar barStyle="light-content" />
           <Header title="Add Address" />
           <Text style={styles.verifyText}>
@@ -66,14 +65,16 @@ const AddressScreen = () => {
               value={address}
               onChangeText={(text) => setAddress(text)}
               placeholder="Street address. No PO boxes."
-              placeholderTextColor="grey"
+              placeholderTextColor="#7C7B7B"
               mode="flat"
               style={styles.input}
               underlineColor="transparent"
               contentStyle={styles.inputContent}
+                returnKeyType="done"
+        selectionColor="#1D533C"
               theme={{
                 colors: {
-                  primary: "grey",
+                  primary: "#F2F2F2",
                 },
               }}
             />
@@ -84,14 +85,16 @@ const AddressScreen = () => {
               value={apt}
               onChangeText={(text) => setApt(text)}
               placeholder="Apt / Ste"
-              placeholderTextColor="grey"
+              placeholderTextColor="#7C7B7B"
               mode="flat"
               style={styles.input}
               underlineColor="transparent"
               contentStyle={styles.inputContent}
+                returnKeyType="done"
+        selectionColor="#1D533C"
               theme={{
                 colors: {
-                  primary: "grey",
+                  primary: "#F2F2F2",
                 },
               }}
             />
@@ -103,14 +106,16 @@ const AddressScreen = () => {
                 value={city}
                 onChangeText={(text) => setCity(text)}
                 placeholder="City"
-                placeholderTextColor="grey"
+                placeholderTextColor="#7C7B7B"
                 mode="flat"
                 style={styles.input}
                 underlineColor="transparent"
                 contentStyle={styles.inputContent}
+                  returnKeyType="done"
+        selectionColor="#1D533C"
                 theme={{
                   colors: {
-                    primary: "grey",
+                    primary: "#F2F2F2",
                   },
                 }}
               />
@@ -121,36 +126,39 @@ const AddressScreen = () => {
                 value={zipCode}
                 onChangeText={(text) => setZipCode(text)}
                 placeholder="00000"
-                placeholderTextColor="grey"
+                placeholderTextColor="#7C7B7B"
                 mode="flat"
                 style={styles.input}
                 underlineColor="transparent"
                 keyboardType="numeric"
                 maxLength={6}
+                  returnKeyType="done"
+        selectionColor="#1D533C"
                 contentStyle={styles.inputContent}
                 theme={{
                   colors: {
-                    primary: "grey",
+                    primary: "#F2F2F2",
                   },
                 }}
               />
             </View>
           </View>
-          <TouchableOpacity
-            onPress={handleContinue}
-            style={[styles.continueButton, { backgroundColor: buttonColor }]}
-            activeOpacity={0.5}
-          >
-            <Text style={styles.continueText}>Continue</Text>
-          </TouchableOpacity>
-          {loading && (
-            <Modal transparent={true} visible={true} animationType="fade">
-              <View style={styles.loaderContainer}>
-                <ActivityIndicator size="large" color="#FFFFFF" />
-              </View>
-            </Modal>
-          )}
-        </SafeAreaView>
+        
+          <Modal visible={loading} transparent={true}>
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color="#fff" />
+            </View>
+          </Modal>
+        </View>
+        <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              onPress={handleContinue}
+              style={[styles.button, { backgroundColor: buttonColor }]}
+              disabled={!address || !apt || !zipCode || !city}
+            >
+              <Text style={styles.buttonText}>Continue</Text>
+            </TouchableOpacity>
+          </View>
       </PaperProvider>
     </ScrollView>
   );
@@ -160,43 +168,50 @@ const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: "grey",
+    primary: "#F2F2F2",
   },
 };
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-  },
   container: {
     flex: 1,
+    paddingBottom: 20,
     backgroundColor: "#fff",
   },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+  },
   verifyText: {
-    fontSize: 14,
-    fontFamily: "Poppins-Regular",
+    fontSize: 16,
+    fontFamily: "Poppins-Medium",
     marginBottom: 10,
     textAlign: "center",
+    color: '#454955'
   },
   inputContainer: {
-    paddingBottom: 20,
     paddingHorizontal: 15,
+    marginBottom: 10,
   },
   inputLabel: {
     fontFamily: 'Poppins-Medium',
-    color: '#1E3B2F',
+    color: '#1D533C',
     fontSize: 16,
-    marginBottom: 5,
   },
   input: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    marginVertical: 10,
     backgroundColor: '#F2F2F2',
     borderRadius: 10,
-    marginVertical: 10,
-    paddingLeft: 0,
+    paddingLeft: 0, 
+    color: '#444444'
   },
   inputContent: {
-    fontFamily: "Poppins-Regular",
-    fontSize: 20,
+    fontFamily: "Poppins-Medium",
+    fontSize: 19,
+    color: '#444444'
   },
   row: {
     flexDirection: "row",
@@ -205,26 +220,30 @@ const styles = StyleSheet.create({
   halfInput: {
     flex: 0.5,
   },
-  continueButton: {
-    paddingVertical: 15,
+  button: {
+    paddingVertical: 17,
     borderRadius: 8,
     marginTop: 20,
     width: "95%",
     alignSelf: "center",
-    alignItems: "center",
-    textAlign: "center",
+    position: 'absolute',
+    bottom: 40,
   },
-  continueText: {
+  buttonText: {
     color: "#fff",
-    fontSize: 16,
-    fontFamily: "Poppins-Regular",
+    textAlign: "center",
+    fontFamily: "Poppins-Medium",
+    fontSize: 17,
   },
   loaderContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
+  buttonContainer:{
+    justifyContent: 'flex-start'
+  }
 });
 
 export default AddressScreen;

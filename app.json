@@ -4,23 +4,23 @@
     "slug": "Spot",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/spot.png",  
+    "icon": "./assets/images/spotnew.jpeg",  
     "splash": {
-      "image": "./assets/images/spot.png",  
+      "image": "./assets/images/spotnew.jpeg",  
       "backgroundColor": "#1E3B2F",
       "resizeMode": "contain",
       "imageResizeMode": "contain",
       "android": {
         "backgroundColor": "#1E3B2F",
         "resizeMode": "cover",
-        "xxhdpi": "./assets/images/spot.png",  
-        "xxxhdpi": "./assets/images/spot.png"  
+        "xxhdpi": "./assets/images/spotnew.jpeg",  
+        "xxxhdpi": "./assets/images/spotnew.jpeg"  
       },
       "ios": {
         "backgroundColor": "#1E3B2F",
         "resizeMode": "contain",
-        "xxhdpi": "./assets/images/spot.png",  
-        "xxxhdpi": "./assets/images/spot.png"  
+        "xxhdpi": "./assets/images/spotnew.jpeg",  
+        "xxxhdpi": "./assets/images/spotnew.jpeg"  
       }
     },
     "userInterfaceStyle": "automatic",
@@ -31,7 +31,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/spot.png",  
+        "foregroundImage": "./assets/images/spotnew.jpeg",  
         "backgroundColor": "#1E3B2F"
       },
       "scheme": "spot",

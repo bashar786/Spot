@@ -5,7 +5,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   userInfo: {
     number: '',
-    email: '',
+    email: 'mubsharalee@gmail.com',
   },
   DebitCardInfo: {
     DebitCardNumber: '',

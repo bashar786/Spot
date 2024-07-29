@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   Text,
   TouchableOpacity,
   StatusBar,
   Image,
   Modal,
   ActivityIndicator,
+  KeyboardAvoidingView,
 } from "react-native";
 import {
   TextInput,
@@ -28,18 +28,29 @@ const DebitCardScreen = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [buttonColor, setButtonColor] = useState("#A99ABB");
+  const [buttonColor, setButtonColor] = useState("#66B18A");
   const [cardType, setCardType] = useState("unknown");
   const [loading, setLoading] = useState(false); // State for loader
   const [maskedCvv, setMaskedCvv] = useState("");
   const dispatch = useDispatch();
+  const [isFocused, setIsFocused] = useState(false);
+  const [cvv, setCvv] = useState("");
+  const [isCVVFocused, setIsCVVFocused] = useState(false);
+
+  const handleCVVFocus = () => {
+    setIsCVVFocused(true);
+  };
+
+  const handleCVVBlur = () => {
+    setIsCVVFocused(false);
+  };
+
 
   useEffect(() => {
     if (maskedDebitCardNumber && firstName && lastName && expiryDate && cvv) {
-      setButtonColor("#1E3B2F");
+      setButtonColor("#1D533C");
     } else {
-      setButtonColor("#63927E");
+      setButtonColor("#66B18A");
     }
   }, [maskedDebitCardNumber, firstName, lastName, expiryDate, cvv]);
 
@@ -94,14 +105,6 @@ const DebitCardScreen = () => {
     }
   };
 
-  const updateCvv = (text) => {
-    const cleaned = text.replace(/\D/g, "").slice(0, 3); // Remove non-digits and limit to 3 characters
-    setCvv(cleaned); // Store the actual CVV value
-
-    // Mask the CVV input with mid dots (•)
-    setMaskedCvv(cleaned.replace(/\d/g, "•"));
-  };
-
   const handleExpiryDateChange = (text) => {
     let cleaned = ("" + text).replace(/\D/g, "");
     if (cleaned.length > 4) {
@@ -128,35 +131,49 @@ const DebitCardScreen = () => {
     return `${formattedMaskedPart} ${formattedLastDigits}`.trim();
   };
 
+  const handleBlur = () => {
+    setIsFocused(false);
+    if (fullDebitCardNumber.length > 12) {
+      const visibleDigits = 4;
+      const maskedPart = "•".repeat(fullDebitCardNumber.length - visibleDigits);
+      const lastDigits = fullDebitCardNumber.slice(-visibleDigits);
+      setMaskedDebitCardNumber(
+        `${maskedPart.replace(/(.{4})/g, "$1 ")} ${lastDigits.replace(/(.{4})/g, "$1 ")}`
+      );
+    } else {
+      setMaskedDebitCardNumber(maskCardNumber(fullDebitCardNumber));
+    }
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    setMaskedDebitCardNumber(fullDebitCardNumber.replace(/(.{4})(?=\d)/g, "$1 ").trim());
+  };
+
   const updateDebitCardNumber = (text) => {
-    // Remove all non-digit characters
     let cleaned = text.replace(/\D/g, "");
 
-    // Restrict input to a maximum of 16 digits
     if (cleaned.length > 16) {
       cleaned = cleaned.slice(0, 16);
     }
 
-    let formatted;
-    // Update the state with the masked card number and the full cleaned number
-    if (cleaned.length === 16) {
-      formatted = maskCardNumber(cleaned);
+    // Update the state with the cleaned number
+    setFullDebitCardNumber(cleaned);
+
+    if (isFocused) {
+      setMaskedDebitCardNumber(cleaned.replace(/(.{4})(?=\d)/g, "$1 ").trim());
     } else {
-      // Format the number by adding a space after every 4 digits for display
-      formatted = cleaned.replace(/(\d{4})(?=\d)/g, "$1 ");
+      setMaskedDebitCardNumber(maskCardNumber(cleaned));
     }
 
-    setMaskedDebitCardNumber(formatted);
-    setFullDebitCardNumber(cleaned); // Store the real full debit card number in state
-
-    // Dispatch action to Redux with the full cleaned number
+    // Dispatch action to Redux
     dispatch(
       UpdatedDebitCardInfo({
-        debitCardNumber: cleaned, // Store the real full debit card number in Redux
-        firstName: "", // Replace with the actual first name state
-        lastName: "", // Replace with the actual last name state
-        expiryDate: "", // Replace with the actual expiry date state
-        cvv: "", // Replace with the actual CVV state
+        debitCardNumber: cleaned,
+        firstName: firstName,
+        lastName: lastName,
+        expiryDate: expiryDate,
+        cvv: cvv,
       })
     );
   };
@@ -194,41 +211,69 @@ const DebitCardScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <PaperProvider theme={theme}>
-        <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView style={styles.container}>
           <StatusBar barStyle="light-content" />
           <Header title="Add Debit Card" />
           <Text style={styles.verifyText}>
             Enter & verify your debit card information
           </Text>
+        
           <View style={styles.inputContainer}>
-          <Text style={{ fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 16 }}>Debit Card Number</Text>
+          <Text style={{ fontFamily: 'Poppins-Medium', color: '#1D533C', fontSize: 16 }}>Debit Card Number</Text>
             <View style={styles.inputWrapper}>
-              <TextInput
-             
-                value={maskedDebitCardNumber}
-                onChangeText={updateDebitCardNumber}
-                placeholder="0000 0000 0000 0000"
-                placeholderTextColor="grey"
-                mode="flat"
-                style={styles.input}
-                underlineColor="transparent"
-                keyboardType="numeric"
-                maxLength={19} // 16 digits + 3 spaces
-                contentStyle={styles.inputContent}
-                labelStyle={{ fontFamily: "Poppins-Regular" }}
-                theme={{
-                  colors: {
-                    primary: "grey",
-                  },
-                }}
-              />
-
+          {/* <TextInput
+  value={isFocused ? maskedDebitCardNumber : maskCardNumber(fullDebitCardNumber)}
+  onChangeText={updateDebitCardNumber}
+  placeholder="Debit Card Number"
+  placeholderTextColor="#7C7B7B"
+  mode="flat"
+  style={styles.input}
+  underlineColor="transparent"
+  keyboardType="numeric"
+  maxLength={19} // 16 digits + 3 spaces
+  contentStyle={styles.inputContent}
+  labelStyle={{ fontFamily: "Poppins-Regular" }}
+  returnKeyType="done"
+  selectionColor="#1D533C"
+  theme={{
+    colors: {
+      primary: "#F2F2F2",
+    },
+  }}
+  onFocus={() => setIsFocused(true)}
+  onBlur={() => {
+    setIsFocused(false);
+    setMaskedDebitCardNumber(maskCardNumber(fullDebitCardNumber)); // Update masked number on blur
+  }}
+/>*/}
+  <TextInput
+    value={maskedDebitCardNumber}
+    onChangeText={updateDebitCardNumber}
+    placeholder="Debit Card Number"
+    placeholderTextColor="#7C7B7B"
+    mode="flat"
+    style={styles.input}
+    underlineColor="transparent"
+    keyboardType="numeric"
+    maxLength={19} // 16 digits + 3 spaces
+    contentStyle={styles.inputContent}
+    labelStyle={{ fontFamily: "Poppins-Regular" }}
+    returnKeyType="done"
+    selectionColor="#1D533C"
+    theme={{
+      colors: {
+        primary: "#F2F2F2",
+      },
+    }}
+    onFocus={handleFocus} // Updated onFocus handler
+    onBlur={handleBlur} // Updated onBlur handler
+  />
+  
               <Image source={getCardImage()} style={styles.cardIcon} />
             </View>
           </View>
           <View style={styles.inputContainer}>
-          <Text style={{ fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 16 }}>First Name</Text>
+          <Text style={{ fontFamily: 'Poppins-Medium', color: '#1D533C', fontSize: 16 }}>First Name</Text>
             <TextInput
 l              value={firstName}
               onChangeText={(text) => setFirstName(text)}
@@ -238,9 +283,12 @@ l              value={firstName}
               placeholder="First Name"
               contentStyle={styles.inputContent}
               labelStyle={{ fontFamily: "Poppins-Regular" }}
+                 placeholderTextColor='#7C7B7B'
+              returnKeyType="next"
+              selectionColor="#1D533C"
               theme={{
                 colors: {
-                  primary: "grey",
+                  primary: "#F2F2F2",
                 },
                 fonts: {
                   regular: {
@@ -254,19 +302,22 @@ l              value={firstName}
             />
           </View>
           <View style={styles.inputContainer}>
-          <Text style={{ fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 16 }}>Last Name</Text>
+          <Text style={{ fontFamily: 'Poppins-Medium', color: '#1D533C', fontSize: 16 }}>Last Name</Text>
             <TextInput
               value={lastName}
               onChangeText={(text) => setLastName(text)}
               contentStyle={styles.inputContent}
               labelStyle={{ fontFamily: "Poppins-Regular" }}
               mode="flat"
+              placeholderTextColor='#7C7B7B'
               placeholder="Last Name"
               style={styles.input}
               underlineColor="transparent"
+                 returnKeyType="done"
+              selectionColor="#1D533C"
               theme={{
                 colors: {
-                  primary: "grey",
+                  primary: "#F2F2F2",
                 },
                 fonts: {
                   regular: {
@@ -281,13 +332,13 @@ l              value={firstName}
           </View>
           <View style={styles.row}>
             <View style={[styles.inputContainer, styles.halfInput]}>
-            <Text style={{ fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 16 }}>Expiration Date</Text>
+            <Text style={{ fontFamily: 'Poppins-Medium', color: '#1D533C', fontSize: 16 }}>Expiration Date</Text>
               <TextInput
                 value={expiryDate}
 
                 onChangeText={handleExpiryDateChange}
                 placeholder="MM/YY"
-                placeholderTextColor="grey"
+                placeholderTextColor="#7C7B7B"
                 mode="flat"
                 style={styles.input}
                 underlineColor="transparent"
@@ -295,37 +346,48 @@ l              value={firstName}
                 maxLength={5}
                 contentStyle={styles.inputContent}
                 labelStyle={{ fontFamily: "Poppins-Regular" }}
+                   returnKeyType="done"
+              selectionColor="#1D533C"
                 theme={{
                   colors: {
-                    primary: "grey",
+                    primary: "#F2F2F2",
                   },
                 }}
               />
             </View>
             <View style={[styles.inputContainer, styles.halfInput]}>
-            <Text style={{ fontFamily: 'Poppins-Medium', color: '#1E3B2F', fontSize: 16 }}>Security Code/CVV</Text>
-              <TextInput
-                
-                value={cvv.length === 3 ? "•••" : cvv} // Mask after 3 digits
-                onChangeText={(text) => setCvv(text)}
-                placeholder="000"
-                placeholderTextColor="grey"
-                mode="flat"
-                style={styles.input}
-                underlineColor="transparent"
-                keyboardType="numeric"
-                maxLength={3}
-                contentStyle={styles.inputContent}
-                labelStyle={{ fontFamily: "Poppins-Regular" }}
-                theme={{
-                  colors: {
-                    primary: "grey",
-                  },
-                }}
-              />
+            <Text style={{ fontFamily: 'Poppins-Medium', color: '#1D533C', fontSize: 16 }}>Security Code/CVV</Text>
+            <TextInput
+        value={isCVVFocused ? cvv : cvv.replace(/./g, "•")} // Mask if not focused
+        onChangeText={(text) => {
+          // Clean and set CVV value
+          const cleanedText = text.replace(/\D/g, "").slice(0, 4);
+          setCvv(cleanedText);
+        }}
+        onFocus={handleCVVFocus}
+        onBlur={handleCVVBlur}
+        placeholder="000"
+        placeholderTextColor="#7C7B7B"
+        style={styles.input}
+        underlineColor="#F2F2F2"
+        keyboardType="numeric"
+        maxLength={4}
+        contentStyle={styles.inputContent}
+        labelStyle={{ fontFamily: "Poppins-Regular" }}
+        returnKeyType="done"
+        selectionColor="#1D533C"
+        theme={{
+          colors: {
+            primary: "#F2F2F2",
+          },
+        }}
+      />
             </View>
+
           </View>
-          <View style={styles.buttonContainer}>
+
+        </KeyboardAvoidingView>
+        <View style={styles.buttonContainer}>
           <TouchableOpacity
             onPress={handleContinue}
             style={[styles.button, { backgroundColor: buttonColor }]}
@@ -340,13 +402,11 @@ l              value={firstName}
             <Text style={styles.buttonText}>Continue</Text>
           </TouchableOpacity>
           </View>
-        </SafeAreaView>
         <Modal visible={loading} transparent={true}>
           <View style={styles.loaderContainer}>
             <ActivityIndicator size="large" color="#fff" />
           </View>
         </Modal>
-      </PaperProvider>
     </ScrollView>
   );
 };
@@ -355,7 +415,7 @@ const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: "grey",
+    primary: "#F2F2F2",
   },
 };
 
@@ -370,18 +430,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   verifyText: {
-    fontSize: 14,
-    fontFamily: "Poppins-Regular",
+    fontSize: 16,
+    fontFamily: "Poppins-Medium",
     marginBottom: 10,
     textAlign: "center",
+    color: '#454955'
   },
   inputContainer: {
     paddingBottom: -30,
     paddingHorizontal: 15,
+    borderBottomColor: '#F2F2F2'
   },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
+    borderBottomColor: '#F2F2F2'
+
   },
   input: {
     flexDirection: "row",
@@ -391,13 +455,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#F2F2F2',
     borderRadius: 10,
     paddingLeft: 0, 
+    color: '#444444',
+    borderBottomWidth: 0,
+    borderBottomColor: '#F2F2F2'
   },
   label: {
     fontFamily: "Poppins-Regular",
   },
   inputContent: {
-    fontFamily: "Poppins-Regular",
-    fontSize: 20,
+    fontFamily: "Poppins-Medium",
+    fontSize: 19,
+    color: '#444444',
+    borderBottomWidth: 0,
+    borderBottomColor: '#F2F2F2'
+
   },
   cardIcon: {
     width: 40,
@@ -405,7 +476,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 10,
     objectFit: "contain",
-    bottom: 20,
+    bottom: 23,
   },
   row: {
     flexDirection: "row",
@@ -415,17 +486,19 @@ const styles = StyleSheet.create({
     flex: 0.5,
   },
   button: {
-    paddingVertical: 15,
+    paddingVertical: 17,
     borderRadius: 8,
     marginTop: 20,
     width: "95%",
     alignSelf: "center",
+    position: 'absolute',
+    bottom: 40
   },
   buttonText: {
     color: "#fff",
     textAlign: "center",
-    fontFamily: "Poppins-Regular",
-    fontSize: 16,
+    fontFamily: "Poppins-Medium",
+    fontSize: 17,
   },
   loaderContainer: {
     flex: 1,

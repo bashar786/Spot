@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, ScrollView, ActivityIndicator
 import { useNavigation } from '@react-navigation/native';
 import { ThemeProvider, CheckBox } from 'react-native-elements';
 import Header from '../components/Header';
-
+import { Feather } from '@expo/vector-icons';
 const PrivacyScreen = () => {
   const navigation = useNavigation();
   const [isChecked, setIsChecked] = useState(false);
@@ -33,7 +33,16 @@ const PrivacyScreen = () => {
   return (
     <ThemeProvider>
       <View style={styles.container}>
-        <Header title='Privacy Policy' />
+      <View style={styles.header}>
+      <Feather 
+      name="arrow-left"
+        onPress={() => navigation.navigate('NumberInputScreen')}
+        size={35}
+        color="white"
+        style={styles.icon}
+        />
+      <Text style={styles.headerText}>Privacy Policy</Text>
+    </View>
         <ScrollView contentContainerStyle={styles.content}>
           {/* Section Title */}
           <Text style={styles.sectionTitle}>
@@ -84,10 +93,10 @@ const PrivacyScreen = () => {
           </View>
           <TouchableOpacity
             onPress={handleContinue}
-            style={[styles.continueButton, { backgroundColor: isChecked ? '#1E3B2F' : '#63927E' }]}
+            style={[styles.continueButton, { backgroundColor: isChecked ? '#1E3B2F' : '#66B18A' }]}
             disabled={!isChecked}
           >
-            <Text style={styles.continueButtonText}>CONTINUE</Text>
+            <Text style={styles.continueButtonText}>Continue</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -106,13 +115,14 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Poppins-Medium',
     fontWeight: '600',
     marginBottom: 10,
+    color: '#454955',
   },
   highlightText: {
-    color: '#1E3B2F',
-    fontFamily: 'Poppins-Regular',
+    color: '#454955',
+    fontFamily: 'Poppins-Medium',
   },
   paragraphContainer: {
     flexDirection: 'row',
@@ -127,11 +137,13 @@ const styles = StyleSheet.create({
   },
   paragraph: {
     flex: 1,
-    fontSize: 12,
+    fontSize: 13,
     textAlign: 'justify',
     lineHeight: 19,
     paddingBottom: 5,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Poppins-Medium',
+    color: '#262628',
+    letterSpacing: 0
   },
   link: {
     color: '#1E3B2F',
@@ -165,22 +177,47 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     marginTop: 20,
-    padding: 15,
-    borderRadius: 5,
+    padding: 17,
+    borderRadius: 10,
     width: '95%',
     alignItems: 'center',
     alignSelf: 'center',
+    marginBottom: 10
   },
   continueButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontFamily: 'Poppins-Regular',
+    fontSize: 17,
+    fontFamily: 'Poppins-Medium',
   },
   loadingContainer: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.6)", // Semi-transparent grey background
     justifyContent: "center",
     alignItems: "center",
+  },
+  header: {
+    backgroundColor: '#1D3B2F',
+    height: 95,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingBottom: 16,
+    position: 'relative',
+    marginBottom: 20,
+    width: '100%',
+  },
+  icon: {
+    position: 'absolute',
+    left: 2,
+    bottom: -8,
+    color: '#FFFFFF',
+    padding: 20
+  },
+  headerText: {
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+    fontWeight: '650'
   },
 });
 

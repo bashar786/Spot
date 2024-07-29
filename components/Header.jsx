@@ -1,7 +1,7 @@
 // Header.js
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 const Header = ({ title }) => {
@@ -9,13 +9,13 @@ const Header = ({ title }) => {
 
   return (
     <View style={styles.header}>
-      <FontAwesome
-        name="angle-left"
+      <Feather 
+      name="arrow-left"
         onPress={() => navigation.goBack()}
         size={35}
         color="white"
         style={styles.icon}
-      />
+        />
       <Text style={styles.headerText}>{title}</Text>
     </View>
   );
@@ -23,7 +23,7 @@ const Header = ({ title }) => {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: '#1E3B2F',
+    backgroundColor: '#1D3B2F',
     height: 95,
     justifyContent: 'flex-end',
     alignItems: 'center',

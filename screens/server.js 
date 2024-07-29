@@ -1,0 +1,135 @@
+const puppeteer = require('puppeteer');
+
+(async () => {
+  const browser = await puppeteer.launch({ headless: false }); // Set to false to see the browser window
+  const page = await browser.newPage();
+
+  // Log in to the website
+  console.log('Navigating to login page...');
+  await page.goto('https://www.dovetailhome.com/account/login/', {
+    waitUntil: 'networkidle2',
+    timeout: 60000,
+  });
+  console.log('Filling out login form...');
+  await page.type('input[name="email"]', 'your-email@example.com'); // Replace with the correct selector and email
+  await page.type('input[name="password"]', 'your-password'); // Replace with the correct selector and password
+  await page.click('button[type="button"]'); // Selector for the button of type "button"
+  console.log('Waiting for navigation...');
+  await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 });
+
+  // Function to scrape collection links from the front page
+  const scrapeCollections = async (url) => {
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+
+    const collections = await page.evaluate(() => {
+      const collectionList = [];
+      
+      const collectionItems = document.querySelectorAll('.collection-item'); // Replace with the actual selector
+
+      collectionItems.forEach(item => {
+        const title = item.querySelector('.collection-title') ? item.querySelector('.collection-title').innerText : 'No title'; // Replace with actual selector
+        const link = item.querySelector('a') ? item.querySelector('a').href : ''; // Update if needed
+
+        collectionList.push({ title, link });
+      });
+
+      return collectionList;
+    });
+
+    return collections;
+  };
+
+  // Function to scrape product details from a collection page
+  const scrapeProductsFromCollection = async (collectionUrl) => {
+    await page.goto(collectionUrl, { waitUntil: 'networkidle2', timeout: 60000 });
+
+    const products = await page.evaluate(() => {
+      const productList = [];
+      
+      const productItems = document.querySelectorAll('.product-item'); // Replace with actual selector
+
+      productItems.forEach(product => {
+        const title = product.querySelector('.product-title') ? product.querySelector('.product-title').innerText : 'No title'; // Replace with actual selector
+        const description = product.querySelector('.product-description') ? product.querySelector('.product-description').innerText : 'No description'; // Replace with actual selector
+        const price = product.querySelector('.product-price') ? product.querySelector('.product-price').innerText : 'No price'; // Replace with actual selector
+        const availability = product.querySelector('.product-availability') ? product.querySelector('.product-availability').innerText : 'No availability'; // Replace with actual selector
+
+        productList.push({ title, description, price, availability });
+      });
+
+      return productList;
+    });
+
+    return products;
+  };
+
+  // Scrape collection links
+  console.log('Scraping collections...');
+  const collections = await scrapeCollections('https://www.dovetailhome.com/'); // Replace with the URL of the front page
+
+  // Scrape products for each collection
+  for (const collection of collections) {
+    console.log(`Scraping products for collection: ${collection.title}`);
+    const products = await scrapeProductsFromCollection(collection.link);
+    console.log(`Products for collection ${collection.title}:`, products);
+  }
+
+  await browser.close();
+})();
+
+// Getting links of all the collections
+
+const puppeteer = require('puppeteer');
+
+
+(async () => {
+  // Launch a headless browser
+  const browser = await puppeteer.launch({ headless: false }); // Set to false to see the browser window
+  const page = await browser.newPage();
+
+  // Navigate to the login page
+  console.log('Navigating to login page...');
+  await page.goto('https://www.dovetailhome.com/account/login/', {
+    waitUntil: 'networkidle2',
+    timeout: 60000, // Increase timeout if needed
+  });
+
+  // Fill out the login form
+  console.log('Filling out login form...');
+  await page.type('input[name="email"]', 'hagoptrade@gmail.com'); // Replace with the correct selector and email
+  await page.type('input[name="password"]', 'Furniture?66'); // Replace with the correct selector and password
+  await page.click('button[type="button"]'); // Selector for the button of type "button"
+
+  // Wait for navigation or any expected change
+  console.log('Waiting for navigation or page change...');
+  await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 });
+
+  // Function to scrape data from a page
+  const scrapePage = async (url) => {
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+
+    // Extract the content
+    const content = await page.evaluate(() => {
+      const data = {};
+      data.title = document.title;
+
+      // Example: Extract all text within the main content area
+      data.mainContent = document.querySelector('main') ? document.querySelector('main').innerText : '';
+
+      // Find all links on the page
+      const links = Array.from(document.querySelectorAll('a')).map(a => a.href);
+      data.links = links;
+
+      return data;
+    });
+
+    return content;
+  };
+
+  // Scrape the authenticated page
+  console.log('Navigating to authenticated page...');
+  const authenticatedData = await scrapePage('https://www.dovetailhome.com/account/dashboard/'); // Replace with the actual URL
+  console.log('Authenticated Data:', authenticatedData);
+
+  await browser.close();
+})();

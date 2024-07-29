@@ -51,6 +51,9 @@ const OTPScreen = () => {
     setLoading(true);
 
     try {
+      // Simulate API call
+      // await yourApiCall(code);
+      
       navigation.navigate("TransferMoney");
     } catch (error) {
       console.error("Error verifying OTP:", error);
@@ -68,9 +71,9 @@ const OTPScreen = () => {
         style={styles.keyboardAvoidingContainer}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>ENTER YOUR VERIFICATION CODE</Text>
+          <Text style={styles.title}>OTP Verification</Text>
           <Text style={styles.subtitle}>
-            We sent a verification code to
+            Enter the verification code sent to
           </Text>
           <Text style={styles.email}>{routePhoneNumber}</Text>
           <View style={styles.inputContainer}>
@@ -89,26 +92,28 @@ const OTPScreen = () => {
             ))}
           </View>
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          <TouchableOpacity
-            onPress={() => {
-              /* Handle resend code */
-            }}
-            style={styles.resendButton}
-          >
-            <Text>Didn't receive the code? </Text>
-            <Text style={styles.resendButtonText}>Resend the code</Text>
-          </TouchableOpacity>
+          <View style={styles.resendButtonContainer}>
+            <Text style={styles.resendText}>Didn't receive code?</Text>
+            <TouchableOpacity
+              onPress={() => {
+                /* Handle resend code */
+              }}
+              style={styles.resendButton}
+            >
+              <Text style={styles.resendButtonText}>Resend Now</Text>
+            </TouchableOpacity>
+          </View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               onPress={handleEnter}
               style={[
                 styles.verifyButton,
-                verificationCode.length === 6
-                  ? { backgroundColor: "#1E3B2F" }
-                  : { backgroundColor: "#63927E" },
+                verificationCode.some((digit) => digit === "")
+                  ? { backgroundColor: "#66B18A" }
+                  : { backgroundColor: "#1C533C" },
               ]}
               activeOpacity={1}
-              disabled={verificationCode.length !== 6}
+              disabled={verificationCode.some((digit) => digit === "")}
             >
               <Text style={styles.verifyButtonText}>Verify</Text>
             </TouchableOpacity>
@@ -136,21 +141,21 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
     padding: 15,
+    marginTop: 70,
   },
   title: {
-    fontSize: 19,
-    color: "#1E3B2F",
+    fontSize: 30,
+    color: "#1D533C",
     marginBottom: 10,
-    fontFamily: "Poppins-Regular",
+    fontFamily: 'Poppins-SemiBold',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 19,
     color: "#666",
     textAlign: "center",
-    fontFamily: "Poppins-Regular",
+    fontFamily: "Poppins-Medium",
   },
   inputContainer: {
     flexDirection: "row",
@@ -165,31 +170,38 @@ const styles = StyleSheet.create({
   input: {
     width: 40,
     borderBottomWidth: 2,
-    borderBottomColor: '#1E3B2F',
+    borderBottomColor: '#1D533C',
     fontSize: 40,
     fontFamily: "Poppins-Medium",
     marginHorizontal: 5,
   },
-  resendButton: {
+  resendButtonContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    width: '98%',
     marginVertical: 20,
+    alignItems: 'center'
+  },
+  resendText: {
+    color: '#615F5F',
+    fontFamily: 'Poppins-Regular',
+    fontSize: 13,
   },
   resendButtonText: {
     color: "#1E3B2F",
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: "Poppins-Medium",
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 20,
+    bottom: 40,
     width: "100%",
     alignItems: "center",
   },
   verifyButton: {
-    padding: 12,
+    padding: 15,
     alignItems: "center",
-    width: "100%",
+    width: "95%",
     borderRadius: 10,
   },
   verifyButtonText: {
@@ -198,9 +210,9 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   email: {
-    color: "#1E3B2F",
-    fontSize: 16,
-    fontFamily: "Poppins-Regular",
+    color: "#1C533C",
+    fontSize: 20,
+    fontFamily: "Poppins-Medium",
   },
   errorText: {
     color: "red",

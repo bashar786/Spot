@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   StyleSheet,
-  SafeAreaView,
   Text,
   TouchableOpacity,
   StatusBar,
@@ -10,11 +9,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import MaterialIcons
 import { Foundation } from '@expo/vector-icons'; // Import Foundation icons
-
+import Header from "@/components/Header";
+import { Feather } from "@expo/vector-icons";
 const SetPinScreen = () => {
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
@@ -23,6 +24,9 @@ const SetPinScreen = () => {
   const [showPin, setShowPin] = useState(false);
   const [showConfirmPin, setShowConfirmPin] = useState(false);
   const navigation = useNavigation();
+
+  // Create refs for input fields
+  const confirmPinInput = useRef(null);
 
   const handleContinue = async () => {
     if (pin.trim() === "" || confirmPin.trim() === "") {
@@ -47,80 +51,105 @@ const SetPinScreen = () => {
     }
   };
 
+  // Handle pin input submission
+  const handlePinSubmit = () => {
+    if (confirmPinInput.current) {
+      confirmPinInput.current.focus();
+    }
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
+      <View style={styles.header}>
+      <Feather 
+      name="arrow-left"
+        onPress={() => navigation.navigate('EmailScreen')}
+        size={35}
+        color="white"
+        style={styles.icon}
+        />
+      <Text style={styles.headerText}> Set Your 6-Digit PIN</Text>
+    </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardAvoidingContainer}
+        style={styles.innerContent}
       >
-        <View style={styles.content}>
-          <Text style={styles.title}>SET YOUR 6-DIGIT PIN</Text>
+        <ScrollView contentContainerStyle={styles.scrollViewContent}>
+          <Text style={styles.label}>PIN</Text>
           <View style={styles.inputWrapper}>
             <View style={styles.prefixDiv}>
-              <Foundation name="key" size={35} color="#1E3B2F" style={styles.prefixImg} />
+              <Foundation name="key" size={33} color="#1D3B2F" style={styles.prefixImg} />
             </View>
+
             <TextInput
               value={pin}
               onChangeText={setPin}
-              style={[styles.textInput, { fontSize: 22, fontFamily: "Poppins-Medium" }]}
+              style={styles.textInput}
               keyboardType="numeric"
               maxLength={6}
               placeholder="PIN"
               secureTextEntry={!showPin}
-              placeholderTextColor="grey"
+              placeholderTextColor="#8D8D8D"
+              selectionColor="#1D533C"
+              returnKeyType="done"
+              onSubmitEditing={handlePinSubmit} // Trigger focus on next input
             />
             <TouchableOpacity
               onPress={() => setShowPin(!showPin)}
               style={styles.iconContainer}
             >
-              <Icon name={showPin ? "visibility" : "visibility-off"} size={24} color="#999" />
+              <Icon name={showPin ? "visibility" : "visibility-off"} size={24} color="#1D533C" />
             </TouchableOpacity>
           </View>
+          
+          <Text style={styles.label}>Confirm PIN</Text>
           <View style={styles.inputWrapper}>
             <View style={styles.prefixDiv}>
-              <Foundation name="key" size={35} color="#1E3B2F" style={styles.prefixImg} />
+              <Foundation name="key" size={33} color="#1D3B2F" style={styles.prefixImg} />
             </View>
             <TextInput
+              ref={confirmPinInput}
               value={confirmPin}
               onChangeText={setConfirmPin}
-              style={[styles.textInput, { fontSize: 22, fontFamily: "Poppins-Medium" }]}
+              style={styles.textInput}
               keyboardType="numeric"
               maxLength={6}
               placeholder="Confirm PIN"
               secureTextEntry={!showConfirmPin}
-              placeholderTextColor="grey"
+              placeholderTextColor="#8D8D8D"
               editable={pin.length === 6}
+              returnKeyType="done"
+              selectionColor="#1D533C"
             />
             <TouchableOpacity
               onPress={() => setShowConfirmPin(!showConfirmPin)}
               style={styles.iconContainer}
             >
-              <Icon name={showConfirmPin ? "visibility" : "visibility-off"} size={24} color="#999" />
+              <Icon name={showConfirmPin ? "visibility" : "visibility-off"} size={24} color="#1D533C" />
             </TouchableOpacity>
           </View>
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          <TouchableOpacity
-            onPress={handleContinue}
-            style={[
-              styles.continueButton,
-              pin && confirmPin && pin === confirmPin
-                ? { backgroundColor: "#1E3B2F" }
-                : { backgroundColor: "#63927E" },
-            ]}
-          
-          >
-            <Text style={styles.continueButtonText}>CONTINUE</Text>
-          </TouchableOpacity>
-          {loading && (
-            <View style={styles.loaderOverlay}>
-              <ActivityIndicator size="large" color="#ffffff" />
-            </View>
-          )}
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+      <TouchableOpacity
+        onPress={handleContinue}
+        style={[
+          styles.continueButton,
+          pin && confirmPin && pin === confirmPin
+            ? { backgroundColor: "#1D3B2F" }
+            : { backgroundColor: "#66B18A" },
+        ]}
+      >
+        <Text style={styles.continueButtonText}>Continue</Text>
+      </TouchableOpacity>
+      {loading && (
+        <View style={styles.loaderOverlay}>
+          <ActivityIndicator size="large" color="#ffffff" />
+        </View>
+      )}
+    </View>
   );
 };
 
@@ -129,21 +158,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
-  keyboardAvoidingContainer: {
+  innerContent: {
     flex: 1,
-  },
-  content: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     padding: 15,
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   },
-  title: {
-    fontSize: 22,
-    color: "#000",
-    marginBottom: 50,
-    fontFamily: "Poppins-Regular",
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+    marginBottom: 20
+  },
+  label: {
+    fontSize: 18,
+    color: '#1D533C',
+    fontFamily: 'Poppins-Medium',
+    marginTop: 15
   },
   inputWrapper: {
     flexDirection: "row",
@@ -161,7 +190,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     position: 'absolute',
     left: 10,
-    bottom: 6,
+    bottom: 11,
     zIndex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
@@ -173,28 +202,24 @@ const styles = StyleSheet.create({
     fontSize: 20,
     borderColor: 'transparent',
     marginLeft: 20,
-    justifyContent: 'center',
-    alignItems: 'center'
+    fontFamily: 'Poppins-Medium',
+    color: '#444444'
   },
   iconContainer: {
-    padding: 10,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    marginTop: 20,
+    padding: 15,
   },
   continueButton: {
-    padding: 15,
+    padding: 17,
     borderRadius: 10,
-    width: "100%",
+    width: "92%",
     alignItems: "center",
-    marginTop: 20,
+    marginBottom: 40,
+    alignSelf: 'center',
+
   },
   continueButtonText: {
-    fontSize: 16,
-    fontFamily: "Poppins-Regular",
+    fontSize: 17,
+    fontFamily: "Poppins-Medium",
     color: "#fff",
   },
   errorText: {
@@ -206,6 +231,30 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
+  },
+  header: {
+    backgroundColor: '#1D3B2F',
+    height: 95,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingBottom: 16,
+    position: 'relative',
+    marginBottom: 20,
+    width: '100%',
+  },
+  icon: {
+    position: 'absolute',
+    left: 2,
+    bottom: -8,
+    color: '#FFFFFF',
+    padding: 20
+  },
+  headerText: {
+    color: '#fff',
+    fontSize: 18,
+    textAlign: 'center',
+    fontFamily: 'Poppins-Regular',
+    fontWeight: '650'
   },
 });
 

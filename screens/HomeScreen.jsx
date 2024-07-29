@@ -7,18 +7,20 @@ const Home = () => {
 
   return (
     <View style={styles.container}>
-      <Image style={styles.logo} source={require("../assets/images/spot.png")} />
+      <Image style={styles.logo} source={require("../assets/images/spotnew.jpeg")} />
       <Text style={styles.description}>Secure Payment Online Transfer</Text>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.callButton}>
-          <Text style={styles.callNumber}>LOGIN</Text>
+        <TouchableOpacity style={styles.callButton}  
+          onPress={() => navigation.navigate('LoginScreen')}
+          activeOpacity={0.5}>
+          <Text style={styles.callNumber}>Log in</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.cancelButton}
           onPress={() => navigation.navigate('NumberInputScreen')}
           activeOpacity={0.5}
         >
-          <Text style={styles.cancelText}>SIGN UP</Text>
+          <Text style={styles.cancelText}>Sign up</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -33,50 +35,52 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   logo: {
-    width: 420,
-    height: 330,
+    width: 600,
+    height: 185,
     resizeMode: 'contain',
   },
   description: {
     fontFamily: 'Poppins-Regular',
     color: '#fff',
-    marginTop: -100,
+    marginTop: -30,
     textAlign: 'center', // Center the text horizontally
-    marginBottom: 170,
-    fontSize: 12,
-    marginRight: 14
+    marginBottom: 50,
+    fontSize: 19,
+    marginRight: 14.5
   },
   buttonContainer: {
     position: 'absolute',
-    bottom: 30,
+    bottom: 90,
     width: '100%',
     alignItems: 'center',
   },
   callButton: {
     width: "95%",
-    padding: 13,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  callNumber: {
-    color: "#1D533C",
-    fontSize: 20,
-    textAlign: 'center',
-    fontFamily: "Poppins-Medium",
-  },
-  cancelButton: {
-    width: "95%",
-    padding: 13,
+    padding: 17,
     backgroundColor: "#1D533C",
     borderRadius: 12,
     alignItems: "center",
+    marginBottom: 15,
+    color: "#fff",
   },
-  cancelText: {
+  callNumber: {
     color: "#fff",
     fontSize: 20,
-    fontFamily: "Poppins-Regular",
+    textAlign: 'center',
+    fontFamily: "Poppins-SemiBold",
+  },
+  cancelButton: {
+    width: "95%",
+    padding: 17,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    alignItems: "center",
+    color: 'black'
+  },
+  cancelText: {
+    color: "#1D3B2F",
+    fontSize: 20,
+    fontFamily: "Poppins-SemiBold",
   },
 });
 
